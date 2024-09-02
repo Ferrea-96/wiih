@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "31090192406",
+    "project_id": "wiih-195a2",
+    "storage_bucket": "wiih-195a2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31090192406:android:f7f282fd567eb845a64537",
+        "android_client_info": {
+          "package_name": "com.example.wiih"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa1TnncIlcISVhyCPMAGpa1pU2c2Wey7w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
