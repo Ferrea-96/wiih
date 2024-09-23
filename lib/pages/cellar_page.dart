@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
+import 'package:wiih/classes/placeholder_image.dart';
 import 'package:wiih/classes/wine.dart';
 import 'package:wiih/classes/wines_util.dart';
 import 'package:wiih/pages/add_wine_page.dart';
@@ -64,7 +65,7 @@ class _CellarPageState extends State<CellarPage> {
                   },
                   child: const Text('Sort'),
                 ),
-              ),
+              )
             ],
           ),
         ],
@@ -127,7 +128,7 @@ class _CellarPageState extends State<CellarPage> {
                           wine.imageUrl!,
                           fit: BoxFit.cover,
                         )
-                      : _placeholderImage(context, wine),
+                      : PlaceholderImage(context: context, wine: wine),
                 ),
               ),
               // Display wine details in a ListTile
@@ -294,41 +295,6 @@ class _CellarPageState extends State<CellarPage> {
     if (result != null && result is Wine) {
       wineList.addWine(result); // Use the WineList to add the wine
       WinesUtil.saveWines(wineList);
-    }
-  }
-
-  Widget _placeholderImage(BuildContext context, Wine wine) {
-    switch (wine.type) {
-      case 'Red':
-        return Image.asset(
-          'assets/placeholder_red_image.jpg',
-          fit: BoxFit.fill,
-        );
-      case 'White':
-        return Image.asset(
-          'assets/placeholder_white_image.jpg',
-          fit: BoxFit.fill,
-        );
-      case 'Rosé':
-        return Image.asset(
-          'assets/placeholder_rose_image.jpg',
-          fit: BoxFit.fill,
-        );
-      case 'Sparkling':
-        return Image.asset(
-          'assets/placeholder_sparkling_image.jpg',
-          fit: BoxFit.fill,
-        );
-      case 'Orange':
-        return Image.asset(
-          'assets/placeholder_orange_image.jpg',
-          fit: BoxFit.fill,
-        );
-      default:
-        return Image.asset(
-          'assets/placeholder_red_image.jpg', // Default placeholder image
-          fit: BoxFit.fill,
-        );
     }
   }
 }

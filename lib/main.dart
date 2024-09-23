@@ -6,6 +6,7 @@ import 'package:wiih/classes/change_notifier.dart';
 import 'package:wiih/classes/notes_util.dart';
 import 'package:wiih/classes/wines_util.dart';
 import 'package:wiih/pages/cellar_page.dart';
+import 'package:wiih/pages/country_page.dart';
 import 'package:wiih/pages/home_page.dart';
 import 'package:wiih/pages/notes_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -25,8 +26,15 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isDarkMode = false; // State for dark mode
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +42,40 @@ class MyApp extends StatelessWidget {
       title: 'WIIH',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0x00ff0266)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0x00ff0266),
+          brightness: Brightness.light,
+        ),
       ),
-      home: MyHomePage(isInitialLoading: true),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0x00ff0266),
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light, // Use the toggle state
+      home: MyHomePage(
+        isInitialLoading: true,
+        onThemeToggle: (value) {
+          setState(() {
+            _isDarkMode = value; // Update the theme mode
+          });
+        },
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   final bool isInitialLoading;
+  final ValueChanged<bool> onThemeToggle; // Callback for theme toggle
 
-  const MyHomePage({Key? key, required this.isInitialLoading})
-      : super(key: key);
+  const MyHomePage({
+    Key? key,
+    required this.isInitialLoading,
+    required this.onThemeToggle,
+  }) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -57,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<void> _initialLoadFuture;
   late WineList wineList;
   late NotesList notesList;
-  bool _isInitialLoading = true; // Flag to track initial loading
+  bool _isInitialLoading = true;
 
   @override
   void initState() {
@@ -74,53 +104,78 @@ class _MyHomePageState extends State<MyHomePage> {
     await WinesUtil.loadWines(wineList);
     await NotesUtil.loadNotes(notesList);
     setState(() {
-      _isInitialLoading =
-          false; // Update flag after initial loading is completed
+      _isInitialLoading = false;
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Scaffold(
-        body: Row(
-          children: [
-            SafeArea(
-              child: NavigationRail(
-                extended: constraints.maxWidth >= 600,
-                destinations: [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
+@override
+Widget build(BuildContext context) {
+  return LayoutBuilder(builder: (context, constraints) {
+    return Scaffold(
+      body: Row(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: NavigationRail(
+                    extended: constraints.maxWidth >= 600,
+                    destinations: [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.home),
+                        label: Text('Home'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.wine_bar),
+                        label: Text('Cellar'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.travel_explore),
+                        label: Text('Countries'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.notes),
+                        label: Text('Notes'),
+                      ),
+                    ],
+                    selectedIndex: selectedIndex,
+                    onDestinationSelected: (value) {
+                      setState(() {
+                        selectedIndex = value;
+                      });
+                    },
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.wine_bar),
-                    label: Text('Cellar'),
+                ),
+                // Icon toggle for dark and light mode at the bottom
+                Padding( padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                  child: IconButton(
+                    icon: Icon(
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Icons.wb_sunny // Sun icon for light mode
+                          : Icons.nights_stay, // Moon icon for dark mode
+                    ),
+                    onPressed: () {
+                      // Toggle between light and dark mode
+                      bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                      widget.onThemeToggle(!isDarkMode);
+                    },
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.notes),
-                    label: Text('Notes'),
-                  ),
-                ],
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (value) {
-                  setState(() {
-                    selectedIndex = value;
-                  });
-                },
-              ),
+                ),
+              ],
             ),
-            Expanded(
-              child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: _buildPage(context),
-              ),
+          ),
+          Expanded(
+            child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: _buildPage(context),
             ),
-          ],
-        ),
-      );
-    });
-  }
+          ),
+        ],
+      ),
+    );
+  });
+}
+
 
   Widget _buildPage(BuildContext context) {
     if (_isInitialLoading) {
@@ -128,22 +183,24 @@ class _MyHomePageState extends State<MyHomePage> {
         child: AnimatedWineBottleIcon(),
       );
     } else {
-      // Display the appropriate page after initial loading is completed
       return _buildPageContent(context);
     }
   }
 
   Widget _buildPageContent(BuildContext context) {
-    // Determine which page to show based on the selectedIndex
     switch (selectedIndex) {
       case 0:
         return HomePage();
       case 1:
         return CellarPage();
       case 2:
+        return CountryPage();
+      case 3:
         return NotesPage();
       default:
-        throw UnimplementedError('no widget for $selectedIndex');
+        throw UnimplementedError('no widget for index $selectedIndex');
     }
   }
 }
+
+
