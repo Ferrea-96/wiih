@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
-import 'package:wiih/classes/wine_country_icon.dart';
+import 'package:wiih/classes/wine_country_image.dart';
 import 'package:wiih/pages/country_wine_page.dart';
 
 class CountryPage extends StatelessWidget {
@@ -44,12 +44,37 @@ class CountryPage extends StatelessWidget {
                     );
                   },
                   child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch the content to fill the card width
                       children: [
-                        CountryIcons.getIconForCountry(country, size: 50),
-                        SizedBox(height: 10),
-                        Text(country, style: TextStyle(fontSize: 18)),
+                        // Expanded image container at the top
+                        Flexible(
+                          flex: 3,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                            child: CountryIcons.getImageForCountry(
+                              country,
+                              size: double.infinity, 
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        // Country name at the bottom
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+                          child: Text(
+                            country,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center, // Center the text
+                          ),
+                        ),
                       ],
                     ),
                   ),

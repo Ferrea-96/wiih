@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
 import 'package:wiih/classes/wine.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -28,8 +29,9 @@ class HomePage extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.all(20.0),
       child: Text(
-        'Hello Remo',
-        style: TextStyle(fontSize: 16),
+        'Salü Remo!',
+        style: TextStyle(
+            fontSize: 25, letterSpacing: 3, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -47,7 +49,8 @@ class HomePage extends StatelessWidget {
                 children: [
                   Text(
                     '$wineCount',
-                    style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 48, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(
                     width: 20,
@@ -79,7 +82,8 @@ class HomePage extends StatelessWidget {
                 children: [
                   Text(
                     '$priceCount',
-                    style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 48, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(
                     width: 20,
@@ -98,57 +102,57 @@ class HomePage extends StatelessWidget {
     );
   }
 
-Widget notesStatistics() {
-  return Padding(
-    padding: const EdgeInsets.all(10),
-    child: Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Consumer<NotesList>(
-          builder: (context, notesList, child) {
-            int notesCount = notesList.wineNotes.length;
-            return Row(
-              children: [
-                Text(
-                  '$notesCount',
-                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                const Expanded(
-                  child: Text(
-                    'notes in your inventory',
-                    style: TextStyle(fontSize: 24),
+  Widget notesStatistics() {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Consumer<NotesList>(
+            builder: (context, notesList, child) {
+              int notesCount = notesList.wineNotes.length;
+              return Row(
+                children: [
+                  Text(
+                    '$notesCount',
+                    style: const TextStyle(
+                        fontSize: 48, fontWeight: FontWeight.bold),
                   ),
-                ),
-              ],
-            );
-          },
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'notes in your inventory',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
-    ),
-  );
-}
-
-
-int calculateSumOfPrices(List<Wine> wines) {
-  int sum = 0;
-
-  for (var wine in wines) {
-    sum += (wine.price.toInt() * wine.bottleCount.toInt());
+    );
   }
 
-  return sum;
-}
+  int calculateSumOfPrices(List<Wine> wines) {
+    int sum = 0;
 
-int calculateSumOfWines(List<Wine> wines) {
-  int sum = 0;
+    for (var wine in wines) {
+      sum += (wine.price.toInt() * wine.bottleCount.toInt());
+    }
 
-  for (var wine in wines) {
-    sum += wine.bottleCount.toInt();
+    return sum;
   }
 
-  return sum;
-}
+  int calculateSumOfWines(List<Wine> wines) {
+    int sum = 0;
+
+    for (var wine in wines) {
+      sum += wine.bottleCount.toInt();
+    }
+
+    return sum;
+  }
 }

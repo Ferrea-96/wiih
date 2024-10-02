@@ -1,5 +1,6 @@
 // ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/animated_wine_bottle.dart';
 import 'package:wiih/classes/change_notifier.dart';
@@ -46,6 +47,12 @@ class _MyAppState extends State<MyApp> {
           seedColor: Color(0x00ff0266),
           brightness: Brightness.light,
         ),
+        textTheme: GoogleFonts.playfairDisplayTextTheme(
+          Theme.of(context).textTheme,
+        ).apply(
+          bodyColor: Colors.black, // Light theme text color
+          displayColor: Colors.black,
+        ),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
@@ -53,8 +60,17 @@ class _MyAppState extends State<MyApp> {
           seedColor: Color(0x00ff0266),
           brightness: Brightness.dark,
         ),
+        textTheme: GoogleFonts.playfairDisplayTextTheme(
+          Theme.of(context).textTheme,
+        ).apply(
+          bodyColor: Theme.of(context).colorScheme.secondaryContainer, // Dark theme text color
+          displayColor: Theme.of(context).colorScheme.secondaryContainer,
+        ),
       ),
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light, // Use the toggle state
+
+      themeMode: _isDarkMode
+          ? ThemeMode.dark
+          : ThemeMode.light, // Use the toggle state
       home: MyHomePage(
         isInitialLoading: true,
         onThemeToggle: (value) {
@@ -108,74 +124,78 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return LayoutBuilder(builder: (context, constraints) {
-    return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: NavigationRail(
-                    extended: constraints.maxWidth >= 600,
-                    destinations: [
-                      NavigationRailDestination(
-                        icon: Icon(Icons.home),
-                        label: Text('Home'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.wine_bar),
-                        label: Text('Cellar'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.travel_explore),
-                        label: Text('Countries'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.notes),
-                        label: Text('Notes'),
-                      ),
-                    ],
-                    selectedIndex: selectedIndex,
-                    onDestinationSelected: (value) {
-                      setState(() {
-                        selectedIndex = value;
-                      });
-                    },
-                  ),
-                ),
-                // Icon toggle for dark and light mode at the bottom
-                Padding( padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                  child: IconButton(
-                    icon: Icon(
-                      Theme.of(context).brightness == Brightness.dark
-                          ? Icons.wb_sunny // Sun icon for light mode
-                          : Icons.nights_stay, // Moon icon for dark mode
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
+        body: Row(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: NavigationRail(
+                      extended: constraints.maxWidth >= 600,
+                      destinations: [
+                        NavigationRailDestination(
+                          icon: Icon(Icons.home),
+                          label: Text('Home'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.wine_bar),
+                          label: Text('Cellar'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.travel_explore),
+                          label: Text('Countries'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.notes),
+                          label: Text('Notes'),
+                        ),
+                      ],
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: (value) {
+                        setState(() {
+                          selectedIndex = value;
+                        });
+                      },
                     ),
-                    onPressed: () {
-                      // Toggle between light and dark mode
-                      bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                      widget.onThemeToggle(!isDarkMode);
-                    },
                   ),
-                ),
-              ],
+                  // Icon toggle for dark and light mode at the bottom
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    child: _darkModeIcon(context),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: _buildPage(context),
+            Expanded(
+              child: Container(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: _buildPage(context),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  });
-}
+          ],
+        ),
+      );
+    });
+  }
 
+  IconButton _darkModeIcon(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        Theme.of(context).brightness == Brightness.dark
+            ? Icons.wb_sunny // Sun icon for light mode
+            : Icons.nights_stay, // Moon icon for dark mode
+      ),
+      onPressed: () {
+        // Toggle between light and dark mode
+        bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        widget.onThemeToggle(!isDarkMode);
+      },
+    );
+  }
 
   Widget _buildPage(BuildContext context) {
     if (_isInitialLoading) {
@@ -202,5 +222,3 @@ Widget build(BuildContext context) {
     }
   }
 }
-
-

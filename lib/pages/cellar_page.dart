@@ -126,7 +126,7 @@ class _CellarPageState extends State<CellarPage> {
                   child: wine.imageUrl != null
                       ? Image.network(
                           wine.imageUrl!,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                         )
                       : PlaceholderImage(context: context, wine: wine),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
+import 'package:wiih/classes/placeholder_image.dart';
 import 'package:wiih/classes/wine.dart';
 
 class CountryWinePage extends StatelessWidget {
@@ -16,21 +17,78 @@ class CountryWinePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text('Wines from $country')),
-      body: ListView.builder(
-        itemCount: winesFromCountry.length,
-        itemBuilder: (context, index) {
-          return _buildWineCard(context, winesFromCountry[index]);
-        },
-      ),
+      body: winesFromCountry.isEmpty
+          ? Center(child: Text('No wines available from $country'))
+          : PageView.builder(
+              itemCount: winesFromCountry.length,
+              itemBuilder: (context, index) {
+                return _buildWineCard(context, winesFromCountry[index]);
+              },
+            ),
     );
   }
 
   Widget _buildWineCard(BuildContext context, Wine wine) {
-    return Card(
-      child: ListTile(
-        title: Text('${wine.name} (${wine.year})'),
-        subtitle: Text('${wine.type} - ${wine.winery} - ${wine.price} CHF'),
-        trailing: Text('Bottles: ${wine.bottleCount}'),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    child: wine.imageUrl != null
+                        ? Image.network(
+                            wine.imageUrl!, // Using the non-null value of imageUrl
+                            width: double.infinity,
+                            fit: BoxFit.contain,
+                          )
+                        : PlaceholderImage(
+                            context: context,
+                            wine: wine) // Fallback widget if imageUrl is null
+        
+                    ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      '${wine.name} (${wine.year})',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${wine.type} - ${wine.winery}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${wine.price} CHF',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Bottles: ${wine.bottleCount}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
