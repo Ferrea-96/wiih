@@ -168,7 +168,7 @@ class _EditWinePageState extends State<EditWinePage> {
                       context: context,
                       builder: (BuildContext context) {
                         return GrapeVarietySelectionDialog(
-                          grapeVarieties: WineOptions.grapeVarieties,
+                          grapeVarieties: WineOptions.grapeVarieties..sort(),
                           selectedValues: Set.from(selectedGrapeVarieties),
                         );
                       },
@@ -176,7 +176,7 @@ class _EditWinePageState extends State<EditWinePage> {
 
                     if (result != null) {
                       setState(() {
-                        selectedGrapeVarieties = result;
+                        selectedGrapeVarieties = result..sort();
                       });
                     }
                   },

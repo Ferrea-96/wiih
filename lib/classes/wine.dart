@@ -71,7 +71,7 @@ class WineOptions {
     'Sparkling',
     'Orange'
   ];
-  static const List<String> grapeVarieties = [
+  static List<String> grapeVarieties = [
     'Aglianico',
     'Areni',
     'Barbera',
