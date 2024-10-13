@@ -4,7 +4,7 @@ import 'package:wiih/classes/wine.dart';
 class CountrySelectionDialog extends StatefulWidget {
   final String selectedCountry;
 
-  CountrySelectionDialog({required this.selectedCountry});
+  const CountrySelectionDialog({required this.selectedCountry});
 
   @override
   _CountrySelectionDialogState createState() =>
@@ -18,24 +18,29 @@ class _CountrySelectionDialogState extends State<CountrySelectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: AlertDialog(
+    return  AlertDialog(
         title: const Text('Select Country'),
-        content: Column(
-          children: WineOptions.countries
-              .map(
-                (country) => RadioListTile(
-                  title: Text(country),
-                  value: country,
-                  groupValue: selectedCountry,
-                  onChanged: (String? value) {
-                    setState(() {
-                      selectedCountry = value!;
-                    });
-                  },
-                ),
-              )
-              .toList(),
+        content: SizedBox(
+          height: 400, // Constrain the height of the dialog
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: WineOptions.countries
+                  .map(
+                    (country) => RadioListTile(
+                      title: Text(country),
+                      value: country,
+                      groupValue: selectedCountry,
+                      onChanged: (String? value) {
+                        setState(() {
+                          selectedCountry = value!;
+                        });
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
         ),
         actions: [
           TextButton(
@@ -45,7 +50,7 @@ class _CountrySelectionDialogState extends State<CountrySelectionDialog> {
             child: const Text('Done'),
           ),
         ],
-      ),
+      
     );
   }
 }

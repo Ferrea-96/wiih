@@ -11,6 +11,7 @@ class AddWinePage extends StatefulWidget {
   const AddWinePage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AddWinePageState createState() => _AddWinePageState();
 }
 

@@ -4,9 +4,10 @@ import 'package:wiih/classes/wine.dart';
 class TypeSelectionDialog extends StatefulWidget {
   final String selectedType;
 
-  TypeSelectionDialog({required this.selectedType});
+  const TypeSelectionDialog({required this.selectedType});
 
   @override
+  // ignore: library_private_types_in_public_api
   _TypeSelectionDialogState createState() =>
       _TypeSelectionDialogState(selectedType: selectedType);
 }

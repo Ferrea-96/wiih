@@ -11,6 +11,7 @@ class NotesPage extends StatefulWidget {
   const NotesPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _NotesPageState createState() => _NotesPageState();
 }
 
@@ -83,7 +84,7 @@ class _NotesPageState extends State<NotesPage> {
       child: ListTile(
         title: Text(
           '${wineNote.name} ${wineNote.year}',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         trailing: Container(
           padding: const EdgeInsets.all(8.0),

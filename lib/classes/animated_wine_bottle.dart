@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AnimatedWineBottleIcon extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _AnimatedWineBottleIconState createState() => _AnimatedWineBottleIconState();
 }
 
@@ -13,7 +14,7 @@ class _AnimatedWineBottleIconState extends State<AnimatedWineBottleIcon> with Si
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2), // Adjust the duration as needed
+      duration: const Duration(seconds: 2), // Adjust the duration as needed
     )..repeat(); // Repeat the animation
   }
 
@@ -22,7 +23,7 @@ class _AnimatedWineBottleIconState extends State<AnimatedWineBottleIcon> with Si
     return Center(
       child: RotationTransition(
         turns: Tween(begin: 0.0, end: 1.0).animate(_controller),
-        child: Icon(Icons.wine_bar, size: 50),
+        child: const Icon(Icons.wine_bar, size: 50),
       ),
     );
   }
