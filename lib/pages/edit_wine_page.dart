@@ -259,6 +259,13 @@ class _EditWinePageState extends State<EditWinePage> {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
+                        _captureImage();
+                      },
+                      label: const Icon(Icons.camera_alt),
+                    ),
+                    const SizedBox(width: 4),
+                    ElevatedButton.icon(
+                      onPressed: () {
                         _pickImage();
                       },
                       label: const Text('Pick Image'),
@@ -301,6 +308,13 @@ class _EditWinePageState extends State<EditWinePage> {
     File? pickedImage = await pickImage();
     setState(() {
       _image = pickedImage;
+    });
+  }
+
+  Future<void> _captureImage() async {
+    File? capturedImage = await captureImage();
+    setState(() {
+      _image = capturedImage;
     });
   }
 

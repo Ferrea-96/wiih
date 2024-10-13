@@ -198,8 +198,7 @@ class _AddWinePageState extends State<AddWinePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: yearController,
-                  keyboardType:
-                      TextInputType.number,
+                  keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.digitsOnly
                   ], // Allow only numeric input
@@ -235,6 +234,13 @@ class _AddWinePageState extends State<AddWinePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        _captureImage();
+                      },
+                      label: const Icon(Icons.camera_alt),
+                    ),
+                    const SizedBox(width: 4),
                     ElevatedButton.icon(
                       onPressed: () {
                         _pickImage();
@@ -281,6 +287,13 @@ class _AddWinePageState extends State<AddWinePage> {
     File? pickedImage = await pickImage();
     setState(() {
       _image = pickedImage;
+    });
+  }
+
+  Future<void> _captureImage() async {
+    File? capturedImage = await captureImage();
+    setState(() {
+      _image = capturedImage;
     });
   }
 

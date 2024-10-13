@@ -12,6 +12,12 @@ Future<File?> pickImage() async {
   return pickedFile != null ? File(pickedFile.path) : null;
 }
 
+Future<File?> captureImage() async {
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.camera);
+  return pickedFile != null ? File(pickedFile.path) : null;
+}
+
 Future<String?> uploadImage(File image) async {
   try {
     FirebaseStorage storage = FirebaseStorage.instance;
