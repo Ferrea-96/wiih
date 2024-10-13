@@ -338,7 +338,7 @@ class _AddWinePageState extends State<AddWinePage> {
             grapeVariety: grapeVariety,
             price: price,
             imageUrl: imageUrl,
-            bottleCount: 0,
+            bottleCount: 1,
           ),
         );
 
