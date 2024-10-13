@@ -134,7 +134,7 @@ class _CellarPageState extends State<CellarPage> {
               // Display wine details in a ListTile
               Expanded(
                 child: ListTile(
-                  title: Text('${wine.name} ${wine.year}'),
+                  title: Text('${wine.name} ${wine.year}', style: const TextStyle(fontWeight: FontWeight.bold),),
                   subtitle: Text(
                     '${wine.type} - ${wine.winery} - ${wine.country}\n${wine.price} CHF',
                   ),
