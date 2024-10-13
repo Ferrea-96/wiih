@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wiih/classes/country_selection.dart';
 import 'package:wiih/classes/grapevariety_selection.dart';
 import 'package:wiih/classes/image_helper.dart';
@@ -220,8 +221,10 @@ class _EditWinePageState extends State<EditWinePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: yearController,
-                  keyboardType:
-                      TextInputType.number, // Allow only numeric input
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ], // Allow only numeric input
                   decoration: InputDecoration(
                       labelText: 'Year',
                       enabledBorder: OutlineInputBorder(
@@ -236,8 +239,10 @@ class _EditWinePageState extends State<EditWinePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: priceController,
-                  keyboardType:
-                      TextInputType.number, // Allow only numeric input
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ], // Allow only numeric input
                   decoration: InputDecoration(
                       labelText: 'Price',
                       enabledBorder: OutlineInputBorder(

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wiih/classes/country_selection.dart';
 import 'package:wiih/classes/image_helper.dart';
 import 'package:wiih/classes/type_selection.dart';
@@ -198,7 +199,10 @@ class _AddWinePageState extends State<AddWinePage> {
                 child: TextField(
                   controller: yearController,
                   keyboardType:
-                      TextInputType.number, // Allow only numeric input
+                      TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ], // Allow only numeric input
                   decoration: InputDecoration(
                       labelText: 'Year',
                       enabledBorder: OutlineInputBorder(
@@ -213,8 +217,10 @@ class _AddWinePageState extends State<AddWinePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: priceController,
-                  keyboardType:
-                      TextInputType.number, // Allow only numeric input
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ], // Allow only numeric input
                   decoration: InputDecoration(
                       labelText: 'Price',
                       enabledBorder: OutlineInputBorder(
