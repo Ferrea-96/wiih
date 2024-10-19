@@ -25,35 +25,62 @@ class _AddWinePageState extends State<AddWinePage> {
   List<String> selectedGrapeVarieties = [];
   File? _image;
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Enrich your collection'),
+      ),
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+        padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField('Name', nameController, TextCapitalization.words),
-              _buildTypeSelection(),
-              _buildTextField('Winery', wineryController, TextCapitalization.words),
-              _buildCountrySelection(),
-              _buildGrapeVarietySelection(),
-              _buildNumberInputField('Year', yearController),
-              _buildNumberInputField('Price', priceController),
-              _buildImageSelection(),
-              const SizedBox(height: 16),
-              _buildActionButtons(),
-            ],
+          child: Card(
+            elevation: 4,
+            margin: const EdgeInsets.all(8.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Box 1: Name, Winery, Country
+                  _buildTextField(
+                      'Name', nameController, TextCapitalization.words),
+                  _buildTextField(
+                      'Winery', wineryController, TextCapitalization.words),
+                  _buildCountrySelection(),
+
+                  const SizedBox(height: 16),
+
+                  // Box 2: Type, Grape Variety, Year, Price
+                  _buildTypeSelection(),
+                  _buildGrapeVarietySelection(),
+                  _buildNumberInputField('Year', yearController),
+                  _buildNumberInputField('Price', priceController),
+
+                  const SizedBox(height: 16),
+
+                  // Box 3: Image Selection
+                  _buildImageSelection(),
+
+                  const SizedBox(height: 16),
+
+                  // Action buttons
+                  _buildActionButtons(),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, TextCapitalization capitalization) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      TextCapitalization capitalization) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
@@ -61,49 +88,13 @@ class _AddWinePageState extends State<AddWinePage> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          enabledBorder: OutlineInputBorder(
+          border: OutlineInputBorder(
             borderSide: BorderSide(
               width: 1,
               color: Theme.of(context).colorScheme.onSecondaryContainer,
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildNumberInputField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(
-          labelText: label,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              width: 1,
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTypeSelection() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: () async {
-          String? result = await _showSelectionDialog(
-            context,
-            TypeSelectionDialog(selectedType: selectedType),
-          );
-          if (result != null) setState(() => selectedType = result);
-        },
-        child: _buildInputDecorator('Type', selectedType),
       ),
     );
   }
@@ -120,6 +111,22 @@ class _AddWinePageState extends State<AddWinePage> {
           if (result != null) setState(() => selectedCountry = result);
         },
         child: _buildInputDecorator('Country', selectedCountry),
+      ),
+    );
+  }
+
+  Widget _buildTypeSelection() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () async {
+          String? result = await _showSelectionDialog(
+            context,
+            TypeSelectionDialog(selectedType: selectedType),
+          );
+          if (result != null) setState(() => selectedType = result);
+        },
+        child: _buildInputDecorator('Type', selectedType),
       ),
     );
   }
@@ -142,7 +149,33 @@ class _AddWinePageState extends State<AddWinePage> {
         },
         child: _buildInputDecorator(
           'Grape Varieties',
-          selectedGrapeVarieties.isNotEmpty ? selectedGrapeVarieties.join(', ') : 'Select',
+          selectedGrapeVarieties.isNotEmpty
+              ? selectedGrapeVarieties.join(', ')
+              : 'Select',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNumberInputField(
+      String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        inputFormatters: <TextInputFormatter>[
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(4),
+        ],
+        decoration: InputDecoration(
+          labelText: label,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 1,
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+            ),
+          ),
         ),
       ),
     );
@@ -154,10 +187,7 @@ class _AddWinePageState extends State<AddWinePage> {
       child: Row(
         children: [
           ElevatedButton.icon(
-            onPressed: _captureImage,
-            icon: const Icon(Icons.camera_alt),
-            label: const Text('Capture'),
-          ),
+              onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
           const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: _pickImage,
@@ -165,25 +195,42 @@ class _AddWinePageState extends State<AddWinePage> {
             label: const Text('Pick Image'),
           ),
           const SizedBox(width: 16),
-          _image != null ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary) : Container(),
+          _image != null
+              ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+              : Container(),
         ],
       ),
     );
   }
 
-  Widget _buildActionButtons() {
-    return Row(
-      children: [
-        ElevatedButton(
-          onPressed: _saveWine,
-          child: const Text('Save'),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-      ],
+  Padding _buildActionButtons() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          ElevatedButton(
+            onPressed: _saveWine,
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context)
+                    .colorScheme
+                    .onPrimary // Primary color for action buttons
+                ),
+            child: const Text('Save'),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context)
+                    .colorScheme
+                    .onPrimary // Primary color for action buttons
+                ),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -202,7 +249,8 @@ class _AddWinePageState extends State<AddWinePage> {
     );
   }
 
-  Future<T?> _showSelectionDialog<T>(BuildContext context, Widget dialog) async {
+  Future<T?> _showSelectionDialog<T>(
+      BuildContext context, Widget dialog) async {
     return await showDialog<T>(
       context: context,
       builder: (BuildContext context) {

@@ -13,14 +13,17 @@ class HomePage extends StatelessWidget {
 
   Widget homeScreen() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          welcomeText(),
-          cellarStatistics(),
-          priceStatistics(),
-          notesStatistics(),
-        ],
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            welcomeText(),
+            cellarStatistics(),
+            priceStatistics(),
+            notesStatistics(),
+          ],
+        ),
       ),
     );
   }

@@ -44,24 +44,54 @@ class _EditWinePageState extends State<EditWinePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit your collection'),
+      ),
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+        padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField('Name', nameController, TextCapitalization.words),
-              _buildTypeSelection(),
-              _buildTextField('Winery', wineryController, TextCapitalization.words),
-              _buildCountrySelector(),
-              _buildGrapeVarietiesSelector(),
-              _buildTextField('Year', yearController, TextCapitalization.none, TextInputType.number),
-              _buildTextField('Price', priceController, TextCapitalization.none, TextInputType.number),
-              _buildImageButtons(),
-              _buildActionButtons(context),
-            ],
+          child: Card(
+            elevation: 4,
+            margin: const EdgeInsets.all(8.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Box 1: Name, Winery, Country
+                  _buildTextField(
+                      'Name', nameController, TextCapitalization.words),
+                  _buildTextField(
+                      'Winery', wineryController, TextCapitalization.words),
+                  _buildCountrySelector(),
+
+                  const SizedBox(height: 16),
+
+                  // Box 2: Type, Grape Variety, Year, Price
+                  _buildTypeSelection(),
+                  _buildGrapeVarietiesSelector(),
+                  _buildTextField('Year', yearController,
+                      TextCapitalization.none, TextInputType.number),
+                  _buildTextField('Price', priceController,
+                      TextCapitalization.none, TextInputType.number),
+
+                  const SizedBox(height: 16),
+
+                  // Box 3: Image Selection
+                  _buildImageButtons(),
+
+                  const SizedBox(height: 16),
+
+                  // Action buttons
+                  _buildActionButtons(context),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -76,18 +106,24 @@ class _EditWinePageState extends State<EditWinePage> {
     wineryController.text = widget.wine.winery;
     selectedCountry = widget.wine.country;
     priceController.text = widget.wine.price.toString();
-    selectedGrapeVarieties = widget.wine.grapeVariety.split(',').map((e) => e.trim()).toList();
+    selectedGrapeVarieties =
+        widget.wine.grapeVariety.split(',').map((e) => e.trim()).toList();
   }
 
   // Builds the text field for user input
-  Padding _buildTextField(String label, TextEditingController controller, TextCapitalization capitalization, [TextInputType keyboardType = TextInputType.text]) {
+  Padding _buildTextField(String label, TextEditingController controller,
+      TextCapitalization capitalization,
+      [TextInputType keyboardType = TextInputType.text]) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
         textCapitalization: capitalization,
         controller: controller,
-        keyboardType: keyboardType,
-        inputFormatters: keyboardType == TextInputType.number ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly] : [],
+        keyboardType: TextInputType.number,
+        inputFormatters: <TextInputFormatter>[
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(4),
+        ],
         decoration: InputDecoration(
           labelText: label,
           enabledBorder: OutlineInputBorder(
@@ -98,40 +134,6 @@ class _EditWinePageState extends State<EditWinePage> {
           ),
         ),
       ),
-    );
-  }
-
-  // Builds the type selection widget
-  Padding _buildTypeSelection() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: () async {
-          String? result = await _showSelectionDialog(context, TypeSelectionDialog(selectedType: selectedType));
-          if (result != null) {
-            setState(() {
-              selectedType = result;
-            });
-          }
-        },
-        child: _buildInputDecorator('Type', selectedType),
-      ),
-    );
-  }
-
-  // Builds the input decorator for various selections
-  InputDecorator _buildInputDecorator(String label, String value) {
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            width: 1,
-            color: Theme.of(context).colorScheme.onSecondaryContainer,
-          ),
-        ),
-      ),
-      child: Text(value),
     );
   }
 
@@ -158,7 +160,25 @@ class _EditWinePageState extends State<EditWinePage> {
     );
   }
 
-  // Builds the grape varieties selector widget
+  // Builds the type selection widget
+  Padding _buildTypeSelection() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () async {
+          String? result = await _showSelectionDialog(
+              context, TypeSelectionDialog(selectedType: selectedType));
+          if (result != null) {
+            setState(() {
+              selectedType = result;
+            });
+          }
+        },
+        child: _buildInputDecorator('Type', selectedType),
+      ),
+    );
+  }
+
   Padding _buildGrapeVarietiesSelector() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -179,33 +199,29 @@ class _EditWinePageState extends State<EditWinePage> {
             });
           }
         },
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: 'Grape Varieties',
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                width: 1,
-                color: Theme.of(context).colorScheme.onSecondaryContainer,
-              ),
-            ),
-          ),
-          child: Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            children: selectedGrapeVarieties.map(
-              (grape) => Chip(
-                deleteIconColor: Theme.of(context).colorScheme.primary,
-                label: Text(grape, style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                onDeleted: () {
-                  setState(() {
-                    selectedGrapeVarieties.remove(grape);
-                  });
-                },
-              ),
-            ).toList(),
+        child: _buildInputDecorator(
+          'Grape Varieties',
+          selectedGrapeVarieties.isNotEmpty
+              ? selectedGrapeVarieties.join(', ')
+              : 'Select',
+        ),
+      ),
+    );
+  }
+
+  // Builds the input decorator for various selections
+  InputDecorator _buildInputDecorator(String label, String value) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            width: 1,
+            color: Theme.of(context).colorScheme.onSecondaryContainer,
           ),
         ),
       ),
+      child: Text(value),
     );
   }
 
@@ -219,38 +235,56 @@ class _EditWinePageState extends State<EditWinePage> {
             onPressed: _captureImage,
             label: const Icon(Icons.camera_alt),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: _pickImage,
             label: const Text('Pick Image'),
             icon: const Icon(Icons.image),
           ),
           const SizedBox(width: 16),
-          _image != null ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary) : Container(),
+          _image != null
+              ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+              : Container(),
         ],
       ),
     );
   }
 
   // Builds the action buttons (Save and Delete)
-  Row _buildActionButtons(BuildContext context) {
-    return Row(
-      children: [
-        ElevatedButton(
-          onPressed: () => _saveEditedWine(context),
-          child: const Text('Save'),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: () => _deleteWine(context),
-          child: const Text('Delete'),
-        ),
-      ],
+  Padding _buildActionButtons(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          ElevatedButton(
+            onPressed: () => _saveEditedWine(context),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context)
+                    .colorScheme
+                    .onPrimary // Primary color for action buttons
+                ),
+            child: const Text('Save'),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: () => _deleteWine(context),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context)
+                    .colorScheme
+                    .onPrimary // Primary color for action buttons
+                ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 
   // Shows a selection dialog
-  Future<T?> _showSelectionDialog<T>(BuildContext context, Widget dialog) async {
+  Future<T?> _showSelectionDialog<T>(
+      BuildContext context, Widget dialog) async {
     return await showDialog<T>(
       context: context,
       builder: (BuildContext context) {
@@ -338,7 +372,8 @@ class _EditWinePageState extends State<EditWinePage> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Close the alert dialog
-                Navigator.pop(context, null); // Return null to indicate deletion
+                Navigator.pop(
+                    context, null); // Return null to indicate deletion
               },
               child: const Text('Delete'),
             ),
