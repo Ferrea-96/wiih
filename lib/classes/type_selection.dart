@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wiih/classes/wine.dart';
+import 'package:wiih/classes/wine/wine_options.dart';
 
 class TypeSelectionDialog extends StatefulWidget {
   final String selectedType;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wiih/classes/wine.dart';
-import 'package:wiih/classes/wine_notes.dart';
+import 'package:wiih/classes/wine/wine.dart';
+import 'package:wiih/classes/wine/wine_notes.dart';
 
 class WineList with ChangeNotifier {
   List<Wine> _wines = [];

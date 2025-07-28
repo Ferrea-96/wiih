@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:wiih/classes/country_selection.dart';
 import 'package:wiih/classes/image_helper.dart';
 import 'package:wiih/classes/type_selection.dart';
-import 'package:wiih/classes/wine.dart';
+import 'package:wiih/classes/wine/wine.dart';
 import 'package:wiih/classes/grapevariety_selection.dart';
+import 'package:wiih/classes/wine/wine_countries.dart';
+import 'package:wiih/classes/wine/wine_options.dart';
 
 class AddWinePage extends StatefulWidget {
   const AddWinePage({super.key});
@@ -21,7 +23,7 @@ class _AddWinePageState extends State<AddWinePage> {
   final TextEditingController yearController = TextEditingController();
 
   String selectedType = WineOptions.types[0];
-  String selectedCountry = WineOptions.countries[0];
+  String selectedCountry = WineCountries.countries[0];
   List<String> selectedGrapeVarieties = [];
   File? _image;
 
@@ -136,13 +138,17 @@ class _AddWinePageState extends State<AddWinePage> {
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () async {
-          List<String>? result = await _showSelectionDialog(
-            context,
-            GrapeVarietySelectionDialog(
-              grapeVarieties: WineOptions.grapeVarieties..sort(),
-              selectedValues: Set.from(selectedGrapeVarieties),
-            ),
-          );
+          final grapeVarieties = [
+          ...?WineOptions.grapeVarietiesByType[selectedType]
+        ]..sort();
+
+        List<String>? result = await _showSelectionDialog(
+          context,
+          GrapeVarietySelectionDialog(
+            grapeVarieties: grapeVarieties,
+            selectedValues: Set.from(selectedGrapeVarieties),
+          ),
+        );
           if (result != null) {
             setState(() => selectedGrapeVarieties = result..sort());
           }

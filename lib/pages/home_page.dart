@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
-import 'package:wiih/classes/wine.dart';
+import 'package:wiih/classes/wine/wine.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.all(20.0),
       child: Text(
-        'Salü Remo!',
+        'Hi there!',
         style: TextStyle(
             fontSize: 25, letterSpacing: 3, fontWeight: FontWeight.bold),
       ),

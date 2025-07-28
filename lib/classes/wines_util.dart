@@ -1,9 +1,7 @@
-// wines_util.dart
-
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wiih/classes/change_notifier.dart';
-import 'package:wiih/classes/wine.dart';
+import 'package:wiih/classes/wine/wine.dart';
 
 class WinesUtil {
   static Future<void> loadWines(WineList wineList) async {

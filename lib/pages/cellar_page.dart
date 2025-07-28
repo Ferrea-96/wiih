@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
 import 'package:wiih/classes/placeholder_image.dart';
-import 'package:wiih/classes/wine.dart';
+import 'package:wiih/classes/wine/wine.dart';
 import 'package:wiih/classes/wines_util.dart';
 import 'package:wiih/pages/add_wine_page.dart';
 import 'package:wiih/pages/edit_wine_page.dart';
@@ -120,7 +120,6 @@ class _CellarPageState extends State<CellarPage> {
               SizedBox(
                 width: 80, // Adjust the width as needed
                 height: 100, // Adjust the height as needed
-                // You can use other shapes as well
                 child: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                   child: wine.imageUrl != null
@@ -134,7 +133,10 @@ class _CellarPageState extends State<CellarPage> {
               // Display wine details in a ListTile
               Expanded(
                 child: ListTile(
-                  title: Text('${wine.name} ${wine.year}', style: const TextStyle(fontWeight: FontWeight.bold),),
+                  title: Text(
+                    '${wine.name} ${wine.year}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(
                     '${wine.type} - ${wine.winery} - ${wine.country}\n${wine.price} CHF',
                   ),
@@ -143,7 +145,7 @@ class _CellarPageState extends State<CellarPage> {
                     decoration: BoxDecoration(
                       color: Theme.of(context)
                           .colorScheme
-                          .secondaryContainer, // You can change the highlight color
+                          .secondaryContainer,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text(
@@ -170,17 +172,20 @@ class _CellarPageState extends State<CellarPage> {
   }
 
   void _removeBottle(Wine wine) {
+    // Store the current bottle count before modifying
+    int originalBottleCount = wine.bottleCount;
     setState(() {
       wine.bottleCount--;
 
       if (wine.bottleCount <= 0) {
         // Show confirmation dialog to delete the wine
-        _showDeleteConfirmationDialog(wine);
+        _showDeleteConfirmationDialog(wine, originalBottleCount);
       }
     });
   }
 
-  Future<void> _showDeleteConfirmationDialog(Wine wine) async {
+  Future<void> _showDeleteConfirmationDialog(
+      Wine wine, int originalBottleCount) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -190,6 +195,10 @@ class _CellarPageState extends State<CellarPage> {
           actions: [
             TextButton(
               onPressed: () {
+                setState(() {
+                  // restore the bottle count to 1
+                  wine.bottleCount = originalBottleCount;
+                });
                 Navigator.pop(context, false); // Keep the wine
               },
               child: const Text('Cancel'),

@@ -1,9 +1,8 @@
-// NotesPage.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
 import 'package:wiih/classes/notes_util.dart';
-import 'package:wiih/classes/wine_notes.dart';
+import 'package:wiih/classes/wine/wine_notes.dart';
 import 'package:wiih/pages/add_wine_notes_page.dart';
 import 'package:wiih/pages/edit_wine_notes_page.dart';
 

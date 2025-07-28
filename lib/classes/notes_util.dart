@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wiih/classes/change_notifier.dart';
-import 'package:wiih/classes/wine_notes.dart';
+import 'package:wiih/classes/wine/wine_notes.dart';
 
 class NotesUtil {
   static Future<void> loadNotes(NotesList notesList) async {

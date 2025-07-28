@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
-import 'package:wiih/classes/wine_notes.dart';
+import 'package:wiih/classes/wine/wine_notes.dart';
 
 class AddWineNotePage extends StatefulWidget {
   const AddWineNotePage({Key? key}) : super(key: key);

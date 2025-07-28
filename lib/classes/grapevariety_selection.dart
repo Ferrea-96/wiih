@@ -7,6 +7,7 @@ class GrapeVarietySelectionDialog extends StatefulWidget {
   GrapeVarietySelectionDialog({
     required this.grapeVarieties,
     required this.selectedValues,
+    super.key
   });
 
   @override

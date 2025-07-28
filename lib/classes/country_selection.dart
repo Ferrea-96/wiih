@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wiih/classes/wine.dart';
+import 'package:wiih/classes/wine/wine_countries.dart';
 
 class CountrySelectionDialog extends StatefulWidget {
   final String selectedCountry;
@@ -25,7 +25,7 @@ class _CountrySelectionDialogState extends State<CountrySelectionDialog> {
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: WineOptions.countries
+              children: WineCountries.countries
                   .map(
                     (country) => RadioListTile(
                       title: Text(country),

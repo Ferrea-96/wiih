@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
-import 'package:wiih/classes/wine_notes.dart';
+import 'package:wiih/classes/wine/wine_notes.dart';
 
 class EditWineNotePage extends StatefulWidget {
   final WineNote wineNote;
