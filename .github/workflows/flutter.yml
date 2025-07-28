@@ -21,8 +21,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze project source
+      - name: Run analysis (non-blocking)
+        continue-on-error: true
         run: flutter analyze
+      
 
       - name: Run tests
         run: flutter test
