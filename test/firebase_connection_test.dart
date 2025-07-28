@@ -1,1 +1,0 @@
-// idea for a test method to check if there is a valid conenction to firebase
