@@ -16,15 +16,14 @@ class CellarPage extends StatefulWidget {
 }
 
 class _CellarPageState extends State<CellarPage> {
-  late WineList wineList; // Declare wineList as an instance variable
+  late WineList wineList;
   String selectedSortOption = 'None';
 
   @override
   void initState() {
     super.initState();
-    // Initialize wineList in the initState method
     wineList = Provider.of<WineList>(context, listen: false);
-    WinesUtil.loadWines;
+    WinesUtil.loadWines(wineList);
   }
 
   @override
@@ -32,44 +31,44 @@ class _CellarPageState extends State<CellarPage> {
     return Center(
       child: Column(
         children: [
-          Consumer<WineList>(
-            builder: (context, wineList, child) {
-              return Expanded(
-                child: ListView.builder(
+          Expanded(
+            child: Consumer<WineList>(
+              builder: (context, wineList, child) {
+                return ListView.builder(
                   itemCount: wineList.wines.length,
                   itemBuilder: (context, index) {
                     return _buildWineCard(context, wineList.wines[index]);
                   },
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _navigateToAddWinePage(context);
-                  },
-                  child: const Icon(Icons.add),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _showSortOptions(context);
-                  },
-                  child: const Text('Sort'),
-                ),
-              )
-            ],
-          ),
+          _buildBottomRow(context),
         ],
       ),
+    );
+  }
+
+  Widget _buildBottomRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: ElevatedButton(
+            onPressed: () => _navigateToAddWinePage(context),
+            child: const Icon(Icons.add),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: ElevatedButton(
+            onPressed: () => _showSortOptions(context),
+            child: const Text('Sort'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -77,60 +76,23 @@ class _CellarPageState extends State<CellarPage> {
     return Dismissible(
       key: Key(wine.id.toString()),
       direction: DismissDirection.horizontal,
-      background: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          color: Colors.greenAccent,
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 20.0),
-          child: const Icon(Icons.add),
-        ),
-      ),
-      secondaryBackground: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          color: Colors.redAccent,
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20.0),
-          child: const Icon(Icons.remove),
-        ),
-      ),
+      background: _buildSwipeBackground(Icons.add, Alignment.centerLeft, Colors.greenAccent),
+      secondaryBackground: _buildSwipeBackground(Icons.remove, Alignment.centerRight, Colors.redAccent),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
-          // Handle add bottle
           _addBottle(wine);
-          WinesUtil.saveWines(wineList);
-          return false; // Do not dismiss
         } else if (direction == DismissDirection.endToStart) {
-          // Handle remove bottle
           _removeBottle(wine);
-          WinesUtil.saveWines(wineList);
-          return false; // Do not dismiss
         }
+        await WinesUtil.saveWines(wineList);
         return false;
       },
       child: Card(
         child: InkWell(
-          onTap: () {
-            _navigateToEditWinePage(context, wine);
-          },
+          onTap: () => _navigateToEditWinePage(context, wine),
           child: Row(
             children: [
-              // Display wine image on the left side
-              SizedBox(
-                width: 80, // Adjust the width as needed
-                height: 100, // Adjust the height as needed
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  child: wine.imageUrl != null
-                      ? Image.network(
-                          wine.imageUrl!,
-                          fit: BoxFit.contain,
-                        )
-                      : PlaceholderImage(context: context, wine: wine),
-                ),
-              ),
-              // Display wine details in a ListTile
+              _buildWineImage(wine),
               Expanded(
                 child: ListTile(
                   title: Text(
@@ -143,9 +105,7 @@ class _CellarPageState extends State<CellarPage> {
                   trailing: Container(
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .secondaryContainer,
+                      color: Theme.of(context).colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Text(
@@ -165,27 +125,46 @@ class _CellarPageState extends State<CellarPage> {
     );
   }
 
+  Widget _buildWineImage(Wine wine) {
+    return SizedBox(
+      width: 80,
+      height: 100,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+        child: wine.imageUrl != null
+            ? Image.network(wine.imageUrl!, fit: BoxFit.contain)
+            : PlaceholderImage(context: context, wine: wine),
+      ),
+    );
+  }
+
+  Widget _buildSwipeBackground(IconData icon, Alignment alignment, Color color) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        color: color,
+        alignment: alignment,
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Icon(icon),
+      ),
+    );
+  }
+
   void _addBottle(Wine wine) {
-    setState(() {
-      wine.bottleCount++;
-    });
+    setState(() => wine.bottleCount++);
   }
 
   void _removeBottle(Wine wine) {
-    // Store the current bottle count before modifying
-    int originalBottleCount = wine.bottleCount;
+    final originalBottleCount = wine.bottleCount;
     setState(() {
       wine.bottleCount--;
-
       if (wine.bottleCount <= 0) {
-        // Show confirmation dialog to delete the wine
         _showDeleteConfirmationDialog(wine, originalBottleCount);
       }
     });
   }
 
-  Future<void> _showDeleteConfirmationDialog(
-      Wine wine, int originalBottleCount) async {
+  Future<void> _showDeleteConfirmationDialog(Wine wine, int originalBottleCount) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -195,19 +174,15 @@ class _CellarPageState extends State<CellarPage> {
           actions: [
             TextButton(
               onPressed: () {
-                setState(() {
-                  // restore the bottle count to 1
-                  wine.bottleCount = originalBottleCount;
-                });
-                Navigator.pop(context, false); // Keep the wine
+                setState(() => wine.bottleCount = originalBottleCount);
+                Navigator.pop(context, false);
               },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // Perform wine deletion
                 _deleteWine(wine);
-                Navigator.pop(context, true); // Confirm deletion
+                Navigator.pop(context, true);
               },
               child: const Text('Delete'),
             ),
@@ -218,10 +193,8 @@ class _CellarPageState extends State<CellarPage> {
   }
 
   void _deleteWine(Wine wine) {
-    setState(() {
-      wineList.deleteWine(wine.id);
-      WinesUtil.saveWines(wineList);
-    });
+    wineList.deleteWine(wine.id);
+    WinesUtil.saveWines(wineList);
   }
 
   void _sortWines() {
@@ -238,11 +211,10 @@ class _CellarPageState extends State<CellarPage> {
       case 'Country':
         wineList.sortWinesByCountry();
         break;
-      case 'None':
+      default:
         wineList.sortWinesByName();
-        break;
     }
-    WinesUtil.saveWines;
+    WinesUtil.saveWines(wineList);
   }
 
   void _showSortOptions(BuildContext context) {
@@ -253,7 +225,6 @@ class _CellarPageState extends State<CellarPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSortOption('None'),
               _buildSortOption('Type'),
@@ -271,39 +242,37 @@ class _CellarPageState extends State<CellarPage> {
     return ListTile(
       title: Text(option),
       onTap: () {
-        setState(() {
-          selectedSortOption = option;
-          _sortWines();
-        });
+        selectedSortOption = option;
+        _sortWines();
         Navigator.pop(context);
       },
     );
   }
 
-  void _navigateToEditWinePage(BuildContext context, Wine wine) async {
+  Future<void> _navigateToEditWinePage(BuildContext context, Wine wine) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditWinePage(wine: wine)),
     );
 
     if (result != null && result is Wine) {
-      wineList.updateWine(result); // Use the WineList to update the wine
-      await WinesUtil.saveWines(wineList); // Wait for the wines to be saved
-    } else if (result != null && result is bool && result) {
-      wineList.deleteWine(wine.id); // Use the WineList to delete the wine
-      await WinesUtil.saveWines(wineList); // Wait for the wines to be saved
+      wineList.updateWine(result);
+      await WinesUtil.saveWines(wineList);
+    } else if (result == true) {
+      wineList.deleteWine(wine.id);
+      await WinesUtil.saveWines(wineList);
     }
   }
 
-  void _navigateToAddWinePage(BuildContext context) async {
+  Future<void> _navigateToAddWinePage(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddWinePage()),
     );
 
     if (result != null && result is Wine) {
-      wineList.addWine(result); // Use the WineList to add the wine
-      WinesUtil.saveWines(wineList);
+      wineList.addWine(result);
+      await WinesUtil.saveWines(wineList);
     }
   }
 }
