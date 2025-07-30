@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wiih/classes/animated_wine_bottle.dart';
 import 'package:wiih/classes/country_selection.dart';
 import 'package:wiih/classes/image_helper.dart';
 import 'package:wiih/classes/type_selection.dart';
@@ -27,6 +28,7 @@ class _AddWinePageState extends State<AddWinePage> {
   List<String> selectedGrapeVarieties = [];
   File? _image;
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -48,29 +50,17 @@ class _AddWinePageState extends State<AddWinePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Box 1: Name, Winery, Country
-                  _buildTextField(
-                      'Name', nameController, TextCapitalization.words),
-                  _buildTextField(
-                      'Winery', wineryController, TextCapitalization.words),
+                  _buildTextField('Name', nameController, TextCapitalization.words),
+                  _buildTextField('Winery', wineryController, TextCapitalization.words),
                   _buildCountrySelection(),
-
                   const SizedBox(height: 16),
-
-                  // Box 2: Type, Grape Variety, Year, Price
                   _buildTypeSelection(),
                   _buildGrapeVarietySelection(),
                   _buildNumberInputField('Year', yearController),
                   _buildNumberInputField('Price', priceController),
-
                   const SizedBox(height: 16),
-
-                  // Box 3: Image Selection
                   _buildImageSelection(),
-
                   const SizedBox(height: 16),
-
-                  // Action buttons
                   _buildActionButtons(),
                 ],
               ),
@@ -81,8 +71,7 @@ class _AddWinePageState extends State<AddWinePage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      TextCapitalization capitalization) {
+  Widget _buildTextField(String label, TextEditingController controller, TextCapitalization capitalization) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
@@ -138,39 +127,33 @@ class _AddWinePageState extends State<AddWinePage> {
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () async {
-          final grapeVarieties = [
-          ...?WineOptions.grapeVarietiesByType[selectedType]
-        ]..sort();
-
-        List<String>? result = await _showSelectionDialog(
-          context,
-          GrapeVarietySelectionDialog(
-            grapeVarieties: grapeVarieties,
-            selectedValues: Set.from(selectedGrapeVarieties),
-          ),
-        );
+          final grapeVarieties = [...?WineOptions.grapeVarietiesByType[selectedType]]..sort();
+          List<String>? result = await _showSelectionDialog(
+            context,
+            GrapeVarietySelectionDialog(
+              grapeVarieties: grapeVarieties,
+              selectedValues: Set.from(selectedGrapeVarieties),
+            ),
+          );
           if (result != null) {
             setState(() => selectedGrapeVarieties = result..sort());
           }
         },
         child: _buildInputDecorator(
           'Grape Varieties',
-          selectedGrapeVarieties.isNotEmpty
-              ? selectedGrapeVarieties.join(', ')
-              : 'Select',
+          selectedGrapeVarieties.isNotEmpty ? selectedGrapeVarieties.join(', ') : 'Select',
         ),
       ),
     );
   }
 
-  Widget _buildNumberInputField(
-      String label, TextEditingController controller) {
+  Widget _buildNumberInputField(String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
-        inputFormatters: <TextInputFormatter>[
+        inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
           LengthLimitingTextInputFormatter(4),
         ],
@@ -192,18 +175,15 @@ class _AddWinePageState extends State<AddWinePage> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          ElevatedButton.icon(
-              onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
+          ElevatedButton.icon(onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
           const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: _pickImage,
-            icon: const Icon(Icons.image),
-            label: const Text('Pick Image'),
-          ),
+          ElevatedButton.icon(onPressed: _pickImage, icon: const Icon(Icons.image), label: const Text('Pick Image')),
           const SizedBox(width: 16),
-          _image != null
-              ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
-              : Container(),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(_image!, width: 60, height: 80, fit: BoxFit.cover),
+            ),
         ],
       ),
     );
@@ -217,22 +197,18 @@ class _AddWinePageState extends State<AddWinePage> {
           ElevatedButton(
             onPressed: _saveWine,
             style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context)
-                    .colorScheme
-                    .onPrimary // Primary color for action buttons
-                ),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
             child: const Text('Save'),
           ),
           const SizedBox(width: 16),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context)
-                    .colorScheme
-                    .onPrimary // Primary color for action buttons
-                ),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
             child: const Text('Cancel'),
           ),
         ],
@@ -255,31 +231,24 @@ class _AddWinePageState extends State<AddWinePage> {
     );
   }
 
-  Future<T?> _showSelectionDialog<T>(
-      BuildContext context, Widget dialog) async {
+  Future<T?> _showSelectionDialog<T>(BuildContext context, Widget dialog) async {
     return await showDialog<T>(
       context: context,
-      builder: (BuildContext context) {
-        return dialog;
-      },
+      builder: (BuildContext context) => dialog,
     );
   }
 
   Future<void> _pickImage() async {
     File? pickedImage = await pickImage();
     if (pickedImage != null) {
-      setState(() {
-        _image = pickedImage;
-      });
+      setState(() => _image = pickedImage);
     }
   }
 
   Future<void> _captureImage() async {
     File? capturedImage = await captureImage();
     if (capturedImage != null) {
-      setState(() {
-        _image = capturedImage;
-      });
+      setState(() => _image = capturedImage);
     }
   }
 
@@ -291,28 +260,34 @@ class _AddWinePageState extends State<AddWinePage> {
       return;
     }
 
-    // Show progress dialog
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const AlertDialog(
+        return AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Saving wine...'),
+              AnimatedWineBottleIcon(),
+              const SizedBox(height: 16),
+              const Text('Saving wine...'),
             ],
           ),
         );
       },
     );
 
-    // Upload the image if available
-    String? imageUrl = _image != null ? await uploadImage(_image!) : null;
+    String? imageUrl;
+    try {
+      imageUrl = _image != null ? await uploadImage(_image!) : null;
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Image upload failed')),
+      );
+      return;
+    }
 
-    // Create the Wine object
     Wine newWine = Wine(
       id: DateTime.now().millisecondsSinceEpoch,
       name: nameController.text,
@@ -326,8 +301,8 @@ class _AddWinePageState extends State<AddWinePage> {
       bottleCount: 1,
     );
 
-    Navigator.pop(context); // Dismiss the progress dialog
-    Navigator.pop(context, newWine); // Return the new wine
+    Navigator.pop(context);
+    Navigator.pop(context, newWine);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Wine saved successfully')),
