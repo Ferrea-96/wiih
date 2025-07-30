@@ -11,6 +11,7 @@ import 'package:wiih/classes/type_selection.dart';
 import 'package:wiih/classes/wine/wine.dart';
 import 'package:wiih/classes/wine/wine_countries.dart';
 import 'package:wiih/classes/wine/wine_options.dart';
+import 'package:wiih/classes/year_selection.dart';
 
 class EditWinePage extends StatefulWidget {
   final Wine wine;
@@ -45,7 +46,8 @@ class _EditWinePageState extends State<EditWinePage> {
     yearController.text = widget.wine.year.toString();
     selectedType = widget.wine.type;
     selectedCountry = widget.wine.country;
-    selectedGrapeVarieties = widget.wine.grapeVariety.split(',').map((e) => e.trim()).toList();
+    selectedGrapeVarieties =
+        widget.wine.grapeVariety.split(',').map((e) => e.trim()).toList();
   }
 
   @override
@@ -59,14 +61,17 @@ class _EditWinePageState extends State<EditWinePage> {
           child: Card(
             elevation: 4,
             margin: const EdgeInsets.all(8.0),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTextField('Name', nameController, TextCapitalization.words),
-                  _buildTextField('Winery', wineryController, TextCapitalization.words),
+                  _buildTextField(
+                      'Name', nameController, TextCapitalization.words),
+                  _buildTextField(
+                      'Winery', wineryController, TextCapitalization.words),
                   _buildCountrySelector(),
                   _buildTypeSelection(),
                   _buildGrapeVarietiesSelector(),
@@ -83,7 +88,8 @@ class _EditWinePageState extends State<EditWinePage> {
     );
   }
 
-  Padding _buildTextField(String label, TextEditingController controller, TextCapitalization capitalization) {
+  Padding _buildTextField(String label, TextEditingController controller,
+      TextCapitalization capitalization) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
@@ -103,26 +109,44 @@ class _EditWinePageState extends State<EditWinePage> {
   }
 
   Padding _buildNumberField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(4),
-        ],
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-              width: 1,
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
+    if (label == 'Year') {
+      int currentYear = DateTime.now().year;
+      int initialYear = int.tryParse(controller.text) ?? currentYear;
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+          onTap: () async {
+            int? result = await showYearPickerDialog(context, initialYear);
+            if (result != null) {
+              setState(() => controller.text = result.toString());
+            }
+          },
+          child: _buildInputDecorator(
+              'Year', controller.text.isEmpty ? 'Select' : controller.text),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4),
+          ],
+          decoration: InputDecoration(
+            labelText: label,
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                width: 1,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Padding _buildCountrySelector() {
@@ -132,7 +156,8 @@ class _EditWinePageState extends State<EditWinePage> {
         onTap: () async {
           String? result = await showDialog(
             context: context,
-            builder: (context) => CountrySelectionDialog(selectedCountry: selectedCountry),
+            builder: (context) =>
+                CountrySelectionDialog(selectedCountry: selectedCountry),
           );
           if (result != null) setState(() => selectedCountry = result);
         },
@@ -148,7 +173,8 @@ class _EditWinePageState extends State<EditWinePage> {
         onTap: () async {
           String? result = await showDialog(
             context: context,
-            builder: (context) => TypeSelectionDialog(selectedType: selectedType),
+            builder: (context) =>
+                TypeSelectionDialog(selectedType: selectedType),
           );
           if (result != null) setState(() => selectedType = result);
         },
@@ -162,7 +188,9 @@ class _EditWinePageState extends State<EditWinePage> {
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () async {
-          final grapeVarieties = [...?WineOptions.grapeVarietiesByType[selectedType]]..sort();
+          final grapeVarieties = [
+            ...?WineOptions.grapeVarietiesByType[selectedType]
+          ]..sort();
           List<String>? result = await showDialog(
             context: context,
             builder: (context) => GrapeVarietySelectionDialog(
@@ -174,7 +202,9 @@ class _EditWinePageState extends State<EditWinePage> {
         },
         child: _buildInputDecorator(
           'Grape Varieties',
-          selectedGrapeVarieties.isNotEmpty ? selectedGrapeVarieties.join(', ') : 'Select',
+          selectedGrapeVarieties.isNotEmpty
+              ? selectedGrapeVarieties.join(', ')
+              : 'Select',
         ),
       ),
     );
@@ -194,28 +224,37 @@ class _EditWinePageState extends State<EditWinePage> {
       child: Text(value),
     );
   }
+
 // A newly selected image via camera or gallery (_image != null), or
 // An existing image URL in the wine object (widget.wine.imageUrl)
   Padding _buildImageButtons() {
-    final bool hasExistingImage = _image != null || (widget.wine.imageUrl?.isNotEmpty ?? false);
+    final bool hasExistingImage =
+        _image != null || (widget.wine.imageUrl?.isNotEmpty ?? false);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ElevatedButton.icon(onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
+          ElevatedButton.icon(
+              onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
           const SizedBox(width: 8),
-          ElevatedButton.icon(onPressed: _pickImage, icon: const Icon(Icons.image), label: const Text('Pick Image')),
+          ElevatedButton.icon(
+              onPressed: _pickImage,
+              icon: const Icon(Icons.image),
+              label: const Text('Pick Image')),
           const SizedBox(width: 16),
           if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(_image!, width: 60, height: 80, fit: BoxFit.cover),
+              child:
+                  Image.file(_image!, width: 60, height: 80, fit: BoxFit.cover),
             )
-          else if (widget.wine.imageUrl != null && widget.wine.imageUrl!.isNotEmpty)
+          else if (widget.wine.imageUrl != null &&
+              widget.wine.imageUrl!.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(widget.wine.imageUrl!, width: 60, height: 80, fit: BoxFit.cover),
+              child: Image.network(widget.wine.imageUrl!,
+                  width: 60, height: 80, fit: BoxFit.cover),
             ),
         ],
       ),
@@ -324,8 +363,12 @@ class _EditWinePageState extends State<EditWinePage> {
         title: const Text('Delete Wine'),
         content: const Text('Are you sure you want to delete this wine?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete')),
         ],
       ),
     ).then((confirmed) {

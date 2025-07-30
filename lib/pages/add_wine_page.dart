@@ -9,6 +9,7 @@ import 'package:wiih/classes/wine/wine.dart';
 import 'package:wiih/classes/grapevariety_selection.dart';
 import 'package:wiih/classes/wine/wine_countries.dart';
 import 'package:wiih/classes/wine/wine_options.dart';
+import 'package:wiih/classes/year_selection.dart';
 
 class AddWinePage extends StatefulWidget {
   const AddWinePage({super.key});
@@ -146,28 +147,45 @@ class _AddWinePageState extends State<AddWinePage> {
       ),
     );
   }
-
-  Widget _buildNumberInputField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(4),
-        ],
-        decoration: InputDecoration(
-          labelText: label,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              width: 1,
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
+  Padding _buildNumberInputField(String label, TextEditingController controller) {
+    if (label == 'Year') {
+      int currentYear = DateTime.now().year;
+      int initialYear = int.tryParse(controller.text) ?? currentYear;
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+          onTap: () async {
+            int? result = await showYearPickerDialog(context, initialYear);
+            if (result != null) {
+              setState(() => controller.text = result.toString());
+            }
+          },
+          child: _buildInputDecorator(
+              'Year', controller.text.isEmpty ? 'Select' : controller.text),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4),
+          ],
+          decoration: InputDecoration(
+            labelText: label,
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                width: 1,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildImageSelection() {
