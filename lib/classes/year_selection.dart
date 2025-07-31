@@ -22,7 +22,7 @@ Future<int?> showYearPickerDialog(BuildContext context, int currentValue) async 
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(selected),
-                child: const Text('OK'),
+                child: const Text('Done'),
               ),
             ],
           );

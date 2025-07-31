@@ -4,7 +4,7 @@ import 'package:wiih/classes/wine/wine_notes.dart';
 
 class WineList with ChangeNotifier {
   List<Wine> _wines = [];
-
+  List<Wine> _filteredWines = [];
   List<Wine> get wines => _wines;
 
   void addWine(Wine wine) {
@@ -54,6 +54,17 @@ class WineList with ChangeNotifier {
     _wines = wines;
     notifyListeners();
   }
+
+  
+  void filterWinesByType(String type) {
+    _filteredWines = _wines.where((wine) => wine.type == type).toList();
+    notifyListeners();
+  }
+
+  void clearFilter() {
+    _filteredWines.clear();
+    notifyListeners();
+}
 }
 
 class NotesList with ChangeNotifier {
