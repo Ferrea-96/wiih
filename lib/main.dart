@@ -1,20 +1,22 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:wiih/classes/animated_wine_bottle.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wiih/classes/change_notifier.dart';
+import 'package:wiih/flutter/firebase_options.dart';
+import 'package:wiih/pages/login_page.dart';
+import 'package:wiih/pages/home_page.dart';
+import 'package:wiih/pages/country_page.dart';
+import 'package:wiih/pages/cellar_page.dart';
+import 'package:wiih/pages/notes_page.dart';
+import 'package:wiih/classes/animated_wine_bottle.dart';
 import 'package:wiih/classes/notes_util.dart';
 import 'package:wiih/classes/wines_util.dart';
-import 'package:wiih/pages/cellar_page.dart';
-import 'package:wiih/pages/country_page.dart';
-import 'package:wiih/pages/home_page.dart';
-import 'package:wiih/pages/notes_page.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
     MultiProvider(
@@ -28,14 +30,14 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _isDarkMode = false; // State for dark mode
+  bool _isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,63 +46,74 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0x00ff0266),
+          seedColor: const Color(0xFFff0266),
           brightness: Brightness.light,
         ),
-        textTheme: GoogleFonts.playfairDisplayTextTheme(
-          Theme.of(context).textTheme,
-        ).apply(
-          bodyColor: Colors.black, // Light theme text color
+        textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
+          bodyColor: Colors.black,
           displayColor: Colors.black,
         ),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0x00ff0266),
+          seedColor: const Color(0xFFff0266),
           brightness: Brightness.dark,
         ),
-        textTheme: GoogleFonts.playfairDisplayTextTheme(
-          Theme.of(context).textTheme,
-        ).apply(
-          bodyColor: Theme.of(context).colorScheme.secondaryContainer, // Dark theme text color
-          displayColor: Theme.of(context).colorScheme.secondaryContainer,
+        textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
         ),
       ),
-
-      themeMode: _isDarkMode
-          ? ThemeMode.dark
-          : ThemeMode.light, // Use the toggle state
-      home: MyHomePage(
-        isInitialLoading: true,
-        onThemeToggle: (value) {
-          setState(() {
-            _isDarkMode = value; // Update the theme mode
-          });
-        },
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: AuthenticatedApp(
+        isDarkMode: _isDarkMode,
+        onThemeToggle: (val) => setState(() => _isDarkMode = val),
       ),
+    );
+  }
+}
+
+class AuthenticatedApp extends StatelessWidget {
+  final bool isDarkMode;
+  final ValueChanged<bool> onThemeToggle;
+
+  const AuthenticatedApp({super.key, required this.isDarkMode, required this.onThemeToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasData) {
+          return MyHomePage(
+            isInitialLoading: true,
+            onThemeToggle: onThemeToggle,
+          );
+        } else {
+          return const LoginPage();
+        }
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   final bool isInitialLoading;
-  final ValueChanged<bool> onThemeToggle; // Callback for theme toggle
+  final ValueChanged<bool> onThemeToggle;
 
-  const MyHomePage({
-    Key? key,
-    required this.isInitialLoading,
-    required this.onThemeToggle,
-  }) : super(key: key);
+  const MyHomePage({Key? key, required this.isInitialLoading, required this.onThemeToggle}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
-  // ignore: unused_field
-  late Future<void> _initialLoadFuture;
+  int selectedIndex = 0;
   late WineList wineList;
   late NotesList notesList;
   bool _isInitialLoading = true;
@@ -110,12 +123,12 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     wineList = Provider.of<WineList>(context, listen: false);
     notesList = Provider.of<NotesList>(context, listen: false);
-    _initialLoadFuture = _loadInitialData();
+    _loadInitialData();
   }
 
   Future<void> _loadInitialData() async {
     if (widget.isInitialLoading) {
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
     }
     await WinesUtil.loadWines(wineList);
     await NotesUtil.loadNotes(notesList);
@@ -126,8 +139,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Scaffold(
+    return LayoutBuilder(
+      builder: (context, constraints) => Scaffold(
         body: Row(
           children: [
             SafeArea(
@@ -136,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Expanded(
                     child: NavigationRail(
                       extended: constraints.maxWidth >= 600,
-                      destinations: [
+                      destinations: const [
                         NavigationRailDestination(
                           icon: Icon(Icons.home),
                           label: Text('Home'),
@@ -155,70 +168,53 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                       selectedIndex: selectedIndex,
-                      onDestinationSelected: (value) {
-                        setState(() {
-                          selectedIndex = value;
-                        });
+                      onDestinationSelected: (index) {
+                        setState(() => selectedIndex = index);
                       },
                     ),
                   ),
-                  // Icon toggle for dark and light mode at the bottom
                   Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    child: _darkModeIcon(context),
-                  ),
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: IconButton(
+                      icon: Icon(
+                        Theme.of(context).brightness == Brightness.dark ? Icons.wb_sunny : Icons.nights_stay,
+                      ),
+                      onPressed: () {
+                        widget.onThemeToggle(
+                          Theme.of(context).brightness != Brightness.dark,
+                        );
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
             Expanded(
               child: Container(
                 color: Theme.of(context).colorScheme.primaryContainer,
-                child: _buildPage(context),
+                child: _isInitialLoading
+                    ? Center(child: AnimatedWineBottleIcon())
+                    : _buildPageContent(),
               ),
-            ),
+            )
           ],
         ),
-      );
-    });
-  }
-
-  IconButton _darkModeIcon(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Theme.of(context).brightness == Brightness.dark
-            ? Icons.wb_sunny // Sun icon for light mode
-            : Icons.nights_stay, // Moon icon for dark mode
       ),
-      onPressed: () {
-        // Toggle between light and dark mode
-        bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-        widget.onThemeToggle(!isDarkMode);
-      },
     );
   }
 
-  Widget _buildPage(BuildContext context) {
-    if (_isInitialLoading) {
-      return Center(
-        child: AnimatedWineBottleIcon(),
-      );
-    } else {
-      return _buildPageContent(context);
-    }
-  }
-
-  Widget _buildPageContent(BuildContext context) {
+  Widget _buildPageContent() {
     switch (selectedIndex) {
       case 0:
-        return HomePage();
+        return const HomePage();
       case 1:
-        return CellarPage();
+        return const CellarPage();
       case 2:
-        return CountryPage();
+        return const CountryPage();
       case 3:
-        return NotesPage();
+        return const NotesPage();
       default:
-        throw UnimplementedError('no widget for index $selectedIndex');
+        return const Center(child: Text('Unknown Page'));
     }
   }
 }

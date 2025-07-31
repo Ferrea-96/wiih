@@ -1,3 +1,5 @@
+// Updated home_page.dart with proper constructor arguments for dark mode toggle
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
@@ -8,10 +10,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return homeScreen();
+    return homeScreen(context);
   }
 
-  Widget homeScreen() {
+  Widget homeScreen(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
