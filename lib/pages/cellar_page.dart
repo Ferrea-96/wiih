@@ -18,6 +18,7 @@ class CellarPage extends StatefulWidget {
 class _CellarPageState extends State<CellarPage> {
   late WineList wineList;
   String selectedSortOption = 'None';
+  String selectedFilterOption = 'None';
 
   @override
   void initState() {
@@ -55,14 +56,19 @@ class _CellarPageState extends State<CellarPage> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(15),
           child: ElevatedButton(
             onPressed: () => _navigateToAddWinePage(context),
             child: const Icon(Icons.add),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(15),
+            child: ElevatedButton(
+                onPressed: () => _showFilterOptions(context),
+                child: const Text('Filter'))),
+        Padding(
+          padding: const EdgeInsets.all(15),
           child: ElevatedButton(
             onPressed: () => _showSortOptions(context),
             child: const Text('Sort'),
@@ -76,8 +82,10 @@ class _CellarPageState extends State<CellarPage> {
     return Dismissible(
       key: Key(wine.id.toString()),
       direction: DismissDirection.horizontal,
-      background: _buildSwipeBackground(Icons.add, Alignment.centerLeft, Colors.greenAccent),
-      secondaryBackground: _buildSwipeBackground(Icons.remove, Alignment.centerRight, Colors.redAccent),
+      background: _buildSwipeBackground(
+          Icons.add, Alignment.centerLeft, Colors.greenAccent),
+      secondaryBackground: _buildSwipeBackground(
+          Icons.remove, Alignment.centerRight, Colors.redAccent),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
           _addBottle(wine);
@@ -138,7 +146,8 @@ class _CellarPageState extends State<CellarPage> {
     );
   }
 
-  Widget _buildSwipeBackground(IconData icon, Alignment alignment, Color color) {
+  Widget _buildSwipeBackground(
+      IconData icon, Alignment alignment, Color color) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -164,7 +173,8 @@ class _CellarPageState extends State<CellarPage> {
     });
   }
 
-  Future<void> _showDeleteConfirmationDialog(Wine wine, int originalBottleCount) async {
+  Future<void> _showDeleteConfirmationDialog(
+      Wine wine, int originalBottleCount) async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -238,14 +248,82 @@ class _CellarPageState extends State<CellarPage> {
     );
   }
 
-  Widget _buildSortOption(String option) {
-    return ListTile(
-      title: Text(option),
-      onTap: () {
-        selectedSortOption = option;
-        _sortWines();
-        Navigator.pop(context);
+  _buildSortOption(String option) {
+    return RadioListTile<String>(
+      value: option,
+      groupValue: selectedSortOption,
+      onChanged: (value) {
+        if (value != null) {
+          selectedSortOption = value;
+          _sortWines();
+          Navigator.pop(context);
+        }
       },
+      title: Text(option),
+    );
+  }
+
+  void _filterWines() {
+    switch (selectedFilterOption) {
+      case 'Red':
+        wineList.filterWinesByType('Red');
+        break;
+      case 'White':
+        wineList.filterWinesByType('White');
+        break;
+      case 'Orange':
+        wineList.filterWinesByType('Orange');
+        break;
+      case 'Rosé':
+        wineList.filterWinesByType('Rosé');
+        break;
+      case 'Sparkling':
+        wineList.filterWinesByType('Sparkling');
+        break;
+      case 'None':
+        wineList.clearFilter();
+        break;
+      default:
+        wineList.clearFilter();
+    }
+    WinesUtil.saveWines(wineList);
+  }
+
+  void _showFilterOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildFilterOption('None'),
+              _buildFilterOption('Red'),
+              _buildFilterOption('White'),
+              _buildFilterOption('Orange'),
+              _buildFilterOption('Rosé'),
+              _buildFilterOption('Sparkling'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterOption(String filterOption) {
+    return RadioListTile<String>(
+      value: filterOption,
+      groupValue: selectedFilterOption,
+      onChanged: (value) {
+        if (value != null) {
+          selectedFilterOption = value;
+          _filterWines();
+          _sortWines();
+          Navigator.pop(context);
+        }
+      },
+      title: Text(filterOption),
     );
   }
 

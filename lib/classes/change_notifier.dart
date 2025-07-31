@@ -5,7 +5,7 @@ import 'package:wiih/classes/wine/wine_notes.dart';
 class WineList with ChangeNotifier {
   List<Wine> _wines = [];
   List<Wine> _filteredWines = [];
-  List<Wine> get wines => _wines;
+  List<Wine> get wines => _filteredWines.isNotEmpty ? _filteredWines : _wines;
 
   void addWine(Wine wine) {
     _wines.add(wine);
