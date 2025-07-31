@@ -1,5 +1,3 @@
-// Updated home_page.dart with proper constructor arguments for dark mode toggle
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';

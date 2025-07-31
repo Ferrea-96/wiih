@@ -49,10 +49,20 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFff0266),
           brightness: Brightness.light,
+          primary: const Color(0xFFff0266),
+          onPrimary: Colors.white,
+          secondary: const Color(0xFFc2185b),
+          onSecondary: Colors.white,
+          surface:
+              const Color(0xFFFDEEEF),
+          primaryContainer: const Color(0xFFF6CEDF),
+          onSurface: Colors.black,
         ),
+        scaffoldBackgroundColor:
+            const Color(0xFFFDEEEF),
         textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
-          bodyColor: Colors.black,
-          displayColor: Colors.black,
+          bodyColor: Colors.black87,
+          displayColor: Colors.black87,
         ),
       ),
       darkTheme: ThemeData(
@@ -60,10 +70,18 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFff0266),
           brightness: Brightness.dark,
+          primary: const Color(0xFFff0266),
+          onPrimary: Colors.white,
+          secondary: const Color(0xFF880e4f),
+          onSecondary: Colors.white,
+          surface: const Color(0xFF1E0E0E),
+          primaryContainer: const Color(0xFF2C1A1A),
+          onSurface: Colors.white70,
         ),
+        scaffoldBackgroundColor: const Color(0xFF1E0E0E),
         textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
-          bodyColor: Colors.white,
-          displayColor: Colors.white,
+          bodyColor: Colors.white70,
+          displayColor: Colors.white70,
         ),
       ),
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
