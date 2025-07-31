@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wiih/classes/change_notifier.dart';
+import 'package:wiih/flutter/auth_service.dart';
 import 'package:wiih/flutter/firebase_options.dart';
 import 'package:wiih/pages/login_page.dart';
 import 'package:wiih/pages/home_page.dart';
@@ -78,7 +79,8 @@ class AuthenticatedApp extends StatelessWidget {
   final bool isDarkMode;
   final ValueChanged<bool> onThemeToggle;
 
-  const AuthenticatedApp({super.key, required this.isDarkMode, required this.onThemeToggle});
+  const AuthenticatedApp(
+      {super.key, required this.isDarkMode, required this.onThemeToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +108,9 @@ class MyHomePage extends StatefulWidget {
   final bool isInitialLoading;
   final ValueChanged<bool> onThemeToggle;
 
-  const MyHomePage({Key? key, required this.isInitialLoading, required this.onThemeToggle}) : super(key: key);
+  const MyHomePage(
+      {Key? key, required this.isInitialLoading, required this.onThemeToggle})
+      : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -176,8 +180,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: IconButton(
+                        icon: Icon(Icons.logout),
+                        onPressed: (AuthService.signOut)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: IconButton(
                       icon: Icon(
-                        Theme.of(context).brightness == Brightness.dark ? Icons.wb_sunny : Icons.nights_stay,
+                        Theme.of(context).brightness == Brightness.dark
+                            ? Icons.wb_sunny
+                            : Icons.nights_stay,
                       ),
                       onPressed: () {
                         widget.onThemeToggle(
