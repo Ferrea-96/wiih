@@ -14,10 +14,16 @@ import 'package:wiih/pages/notes_page.dart';
 import 'package:wiih/classes/animated_wine_bottle.dart';
 import 'package:wiih/classes/notes_util.dart';
 import 'package:wiih/classes/wines_util.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
 
   runApp(
     MultiProvider(

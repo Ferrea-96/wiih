@@ -49,17 +49,17 @@ class _NotesPageState extends State<NotesPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(15,15,15,25),
                 child: ElevatedButton(
                   onPressed: () {
                     _navigateToAddNotePage(
-                        context); // Pass context to access notesList
+                        context);
                   },
-                  child: const Icon(Icons.add),
+                  child: const Text('Add'),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(15,15,15,25),
                 child: ElevatedButton(
                   onPressed: () {
                     _showSortOptions(context);
@@ -160,9 +160,9 @@ class _NotesPageState extends State<NotesPage> {
     );
 
     if (result != null && result is WineNote) {
-      notesList.addWineNote(result); // Use the WineList to add the wine
+      notesList.addWineNote(result);
       try {
-        await NotesUtil.saveNotes(notesList); // Await the save operation
+        await NotesUtil.saveNotes(notesList);
       } catch (e) {
         throw ('Error saving wine notes: $e');
       }
@@ -178,10 +178,10 @@ class _NotesPageState extends State<NotesPage> {
 
     if (result != null && result is WineNote) {
       notesList.updateWineNote(result);
-      await NotesUtil.saveNotes(notesList); // Await the save operation
+      await NotesUtil.saveNotes(notesList);
     } else if (result != null && result is bool && result) {
       notesList.deleteWineNote(wineNote.id);
-      await NotesUtil.saveNotes(notesList); // Await the save operation
+      await NotesUtil.saveNotes(notesList);
     }
   }
 }

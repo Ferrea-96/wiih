@@ -56,19 +56,19 @@ class _CellarPageState extends State<CellarPage> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.fromLTRB(15,15,15,25),
           child: ElevatedButton(
             onPressed: () => _navigateToAddWinePage(context),
-            child: const Icon(Icons.add),
+            child: const Text('Add'),
           ),
         ),
         Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.fromLTRB(15,15,15,25),
             child: ElevatedButton(
                 onPressed: () => _showFilterOptions(context),
                 child: const Text('Filter'))),
         Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.fromLTRB(15,15,15,25),
           child: ElevatedButton(
             onPressed: () => _showSortOptions(context),
             child: const Text('Sort'),

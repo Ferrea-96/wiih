@@ -3,9 +3,11 @@ import 'package:wiih/classes/wine/wine.dart';
 import 'package:wiih/classes/wine/wine_notes.dart';
 
 class WineList with ChangeNotifier {
+  bool _isFiltered = false;
+  List<Wine> get wines => _isFiltered ? _filteredWines : _wines;
   List<Wine> _wines = [];
   List<Wine> _filteredWines = [];
-  List<Wine> get wines => _filteredWines.isNotEmpty ? _filteredWines : _wines;
+
 
   void addWine(Wine wine) {
     _wines.add(wine);
@@ -58,11 +60,13 @@ class WineList with ChangeNotifier {
   
   void filterWinesByType(String type) {
     _filteredWines = _wines.where((wine) => wine.type == type).toList();
+    _isFiltered = true;
     notifyListeners();
   }
 
   void clearFilter() {
     _filteredWines.clear();
+    _isFiltered = false;
     notifyListeners();
 }
 }
