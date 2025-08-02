@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
+import 'package:wiih/classes/gradient_background.dart';
 import 'package:wiih/classes/placeholder_image.dart';
 import 'package:wiih/classes/wine/wine.dart';
 
@@ -17,23 +18,26 @@ class CountryWinePage extends StatelessWidget {
 
     final pageController = PageController(viewportFraction: 0.95);
 
-    return Scaffold(
-      appBar: AppBar(title: Text('Wines from $country')),
-      body: SafeArea(
-        child: winesFromCountry.isEmpty
-            ? Center(child: Text('No wines available from $country'))
-            : PageView.builder(
-                controller: pageController,
-                itemCount: winesFromCountry.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                    child: WineCard(wine: winesFromCountry[index]),
-                  );
-                },
+    return LayoutBuilder(
+        builder: (context, constraints) => GradientBackground(
+                child: Scaffold(
+              appBar: AppBar(title: Text('Wines from $country')),
+              body: SafeArea(
+                child: winesFromCountry.isEmpty
+                    ? Center(child: Text('No wines available from $country'))
+                    : PageView.builder(
+                        controller: pageController,
+                        itemCount: winesFromCountry.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 6.0),
+                            child: WineCard(wine: winesFromCountry[index]),
+                          );
+                        },
+                      ),
               ),
-      ),
-    );
+            )));
   }
 }
 

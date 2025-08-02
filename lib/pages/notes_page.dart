@@ -90,7 +90,7 @@ class _NotesPageState extends State<NotesPage> {
           decoration: BoxDecoration(
             color: Theme.of(context)
                 .colorScheme
-                .secondaryContainer, // You can change the highlight color
+                .secondaryContainer,
             borderRadius: BorderRadius.circular(8.0),
           ),
           child: Text(

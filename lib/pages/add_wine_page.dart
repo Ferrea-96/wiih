@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wiih/classes/animated_wine_bottle.dart';
 import 'package:wiih/classes/country_selection.dart';
+import 'package:wiih/classes/gradient_background.dart';
 import 'package:wiih/classes/image_helper.dart';
 import 'package:wiih/classes/type_selection.dart';
 import 'package:wiih/classes/wine/wine.dart';
@@ -31,48 +32,53 @@ class _AddWinePageState extends State<AddWinePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Enrich your collection'),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Card(
-            elevation: 4,
-            margin: const EdgeInsets.all(8.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTextField('Name', nameController, TextCapitalization.words),
-                  _buildTextField('Winery', wineryController, TextCapitalization.words),
-                  _buildCountrySelection(),
-                  const SizedBox(height: 16),
-                  _buildTypeSelection(),
-                  _buildGrapeVarietySelection(),
-                  _buildNumberInputField('Year', yearController),
-                  _buildNumberInputField('Price', priceController),
-                  const SizedBox(height: 16),
-                  _buildImageSelection(),
-                  const SizedBox(height: 16),
-                  _buildActionButtons(),
-                ],
+    return LayoutBuilder(
+        builder: (context, constraints) => GradientBackground(
+                child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Enrich your collection'),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
+              body: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.all(8.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildTextField(
+                              'Name', nameController, TextCapitalization.words),
+                          _buildTextField('Winery', wineryController,
+                              TextCapitalization.words),
+                          _buildCountrySelection(),
+                          const SizedBox(height: 16),
+                          _buildTypeSelection(),
+                          _buildGrapeVarietySelection(),
+                          _buildNumberInputField('Year', yearController),
+                          _buildNumberInputField('Price', priceController),
+                          const SizedBox(height: 16),
+                          _buildImageSelection(),
+                          const SizedBox(height: 16),
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )));
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, TextCapitalization capitalization) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      TextCapitalization capitalization) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
@@ -128,7 +134,9 @@ class _AddWinePageState extends State<AddWinePage> {
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () async {
-          final grapeVarieties = [...?WineOptions.grapeVarietiesByType[selectedType]]..sort();
+          final grapeVarieties = [
+            ...?WineOptions.grapeVarietiesByType[selectedType]
+          ]..sort();
           List<String>? result = await _showSelectionDialog(
             context,
             GrapeVarietySelectionDialog(
@@ -142,12 +150,16 @@ class _AddWinePageState extends State<AddWinePage> {
         },
         child: _buildInputDecorator(
           'Grape Varieties',
-          selectedGrapeVarieties.isNotEmpty ? selectedGrapeVarieties.join(', ') : 'Select',
+          selectedGrapeVarieties.isNotEmpty
+              ? selectedGrapeVarieties.join(', ')
+              : 'Select',
         ),
       ),
     );
   }
-  Padding _buildNumberInputField(String label, TextEditingController controller) {
+
+  Padding _buildNumberInputField(
+      String label, TextEditingController controller) {
     if (label == 'Year') {
       int currentYear = DateTime.now().year;
       int initialYear = int.tryParse(controller.text) ?? currentYear;
@@ -193,14 +205,19 @@ class _AddWinePageState extends State<AddWinePage> {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          ElevatedButton.icon(onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
+          ElevatedButton.icon(
+              onPressed: _captureImage, label: const Icon(Icons.camera_alt)),
           const SizedBox(width: 8),
-          ElevatedButton.icon(onPressed: _pickImage, icon: const Icon(Icons.image), label: const Text('Pick Image')),
+          ElevatedButton.icon(
+              onPressed: _pickImage,
+              icon: const Icon(Icons.image),
+              label: const Text('Pick Image')),
           const SizedBox(width: 16),
           if (_image != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.file(_image!, width: 60, height: 80, fit: BoxFit.cover),
+              child:
+                  Image.file(_image!, width: 60, height: 80, fit: BoxFit.cover),
             ),
         ],
       ),
@@ -249,7 +266,8 @@ class _AddWinePageState extends State<AddWinePage> {
     );
   }
 
-  Future<T?> _showSelectionDialog<T>(BuildContext context, Widget dialog) async {
+  Future<T?> _showSelectionDialog<T>(
+      BuildContext context, Widget dialog) async {
     return await showDialog<T>(
       context: context,
       builder: (BuildContext context) => dialog,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wiih/classes/animated_wine_bottle.dart';
 import 'package:wiih/classes/country_selection.dart';
+import 'package:wiih/classes/gradient_background.dart';
 import 'package:wiih/classes/grapevariety_selection.dart';
 import 'package:wiih/classes/image_helper.dart';
 import 'package:wiih/classes/type_selection.dart';
@@ -52,40 +53,42 @@ class _EditWinePageState extends State<EditWinePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit your collection')),
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Card(
-            elevation: 4,
-            margin: const EdgeInsets.all(8.0),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTextField(
-                      'Name', nameController, TextCapitalization.words),
-                  _buildTextField(
-                      'Winery', wineryController, TextCapitalization.words),
-                  _buildCountrySelector(),
-                  _buildTypeSelection(),
-                  _buildGrapeVarietiesSelector(),
-                  _buildNumberField('Year', yearController),
-                  _buildNumberField('Price', priceController),
-                  _buildImageButtons(),
-                  _buildActionButtons(),
-                ],
+    return LayoutBuilder(
+        builder: (context, constraints) => GradientBackground(
+                child: Scaffold(
+              appBar: AppBar(title: const Text('Edit your collection')),
+              body: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SingleChildScrollView(
+                  child: Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.all(8.0),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0)),
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildTextField(
+                              'Name', nameController, TextCapitalization.words),
+                          _buildTextField('Winery', wineryController,
+                              TextCapitalization.words),
+                          _buildCountrySelector(),
+                          _buildTypeSelection(),
+                          _buildGrapeVarietiesSelector(),
+                          _buildNumberField('Year', yearController),
+                          _buildNumberField('Price', priceController),
+                          _buildImageButtons(),
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
+            )));
   }
 
   Padding _buildTextField(String label, TextEditingController controller,
@@ -225,8 +228,6 @@ class _EditWinePageState extends State<EditWinePage> {
     );
   }
 
-// A newly selected image via camera or gallery (_image != null), or
-// An existing image URL in the wine object (widget.wine.imageUrl)
   Padding _buildImageButtons() {
     final bool hasExistingImage =
         _image != null || (widget.wine.imageUrl?.isNotEmpty ?? false);

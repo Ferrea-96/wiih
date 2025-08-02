@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wiih/classes/change_notifier.dart';
+import 'package:wiih/classes/gradient_background.dart';
 import 'package:wiih/flutter/auth_service.dart';
 import 'package:wiih/flutter/firebase_options.dart';
 import 'package:wiih/pages/login_page.dart';
@@ -44,12 +45,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _isDarkMode = false;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WIIH',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -59,52 +59,23 @@ class _MyAppState extends State<MyApp> {
           onPrimary: Colors.white,
           secondary: const Color(0xFFc2185b),
           onSecondary: Colors.white,
-          surface:
-              const Color(0xFFFDEEEF),
-          primaryContainer: const Color(0xFFF6CEDF),
+          surface: const Color(0xFFFDEEEF),
+          primaryContainer: Colors.transparent,
           onSurface: Colors.black,
         ),
-        scaffoldBackgroundColor:
-            const Color(0xFFFDEEEF),
+        scaffoldBackgroundColor: Colors.transparent,
         textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
           bodyColor: Colors.black87,
           displayColor: Colors.black87,
         ),
       ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFff0266),
-          brightness: Brightness.dark,
-          primary: const Color(0xFFff0266),
-          onPrimary: Colors.white,
-          secondary: const Color(0xFF880e4f),
-          onSecondary: Colors.white,
-          surface: const Color(0xFF1E0E0E),
-          primaryContainer: const Color(0xFF2C1A1A),
-          onSurface: Colors.white70,
-        ),
-        scaffoldBackgroundColor: const Color(0xFF1E0E0E),
-        textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
-          bodyColor: Colors.white70,
-          displayColor: Colors.white70,
-        ),
-      ),
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: AuthenticatedApp(
-        isDarkMode: _isDarkMode,
-        onThemeToggle: (val) => setState(() => _isDarkMode = val),
-      ),
+      home: const AuthenticatedApp(),
     );
   }
 }
 
 class AuthenticatedApp extends StatelessWidget {
-  final bool isDarkMode;
-  final ValueChanged<bool> onThemeToggle;
-
-  const AuthenticatedApp(
-      {super.key, required this.isDarkMode, required this.onThemeToggle});
+  const AuthenticatedApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -116,10 +87,7 @@ class AuthenticatedApp extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData) {
-          return MyHomePage(
-            isInitialLoading: true,
-            onThemeToggle: onThemeToggle,
-          );
+          return const MyHomePage(isInitialLoading: true);
         } else {
           return const LoginPage();
         }
@@ -130,11 +98,8 @@ class AuthenticatedApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final bool isInitialLoading;
-  final ValueChanged<bool> onThemeToggle;
 
-  const MyHomePage(
-      {Key? key, required this.isInitialLoading, required this.onThemeToggle})
-      : super(key: key);
+  const MyHomePage({super.key, required this.isInitialLoading});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -169,9 +134,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) => Scaffold(
+        backgroundColor: const Color(0xFFFDEEEF), // for the whole base
         body: Row(
           children: [
-            SafeArea(
+            // ✅ Fixed white left side
+            Container(
+              width: constraints.maxWidth >= 600 ? 72 + 200 : 72,
+              color: const Color(0xFFFDEEEF),
               child: Column(
                 children: [
                   Expanded(
@@ -202,37 +171,28 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: IconButton(
-                        icon: Icon(Icons.logout),
-                        onPressed: (AuthService.signOut)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: IconButton(
-                      icon: Icon(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Icons.wb_sunny
-                            : Icons.nights_stay,
-                      ),
-                      onPressed: () {
-                        widget.onThemeToggle(
-                          Theme.of(context).brightness != Brightness.dark,
-                        );
-                      },
+                    padding: const EdgeInsets.only(bottom: 25),
+                    child: Column(
+                      children: [
+                        IconButton(
+                            icon: const Icon(Icons.logout),
+                            onPressed: AuthService.signOut),
+                      ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
             Expanded(
-              child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: _isInitialLoading
-                    ? Center(child: AnimatedWineBottleIcon())
-                    : _buildPageContent(),
+              child: GradientBackground(
+                child: Container(
+                  color: Colors.transparent,
+                  child: _isInitialLoading
+                      ? Center(child: AnimatedWineBottleIcon())
+                      : _buildPageContent(),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
