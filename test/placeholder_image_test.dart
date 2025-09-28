@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wiih/classes/placeholder_image.dart';
-import 'package:wiih/classes/wine/wine.dart';
+import 'package:wiih/src/features/cellar/domain/models/wine.dart';
+import 'package:wiih/src/shared/widgets/placeholder_image.dart';
 
-Wine buildWine({
-  required String type,
-}) {
+Wine buildWine({required String type}) {
   return Wine(
     id: 1,
     name: 'Test',
@@ -21,7 +19,7 @@ Wine buildWine({
 }
 
 void main() {
-  testWidgets('Rosé wines use dedicated placeholder image', (tester) async {
+  testWidgets('Rose wines use dedicated placeholder image', (tester) async {
     final wine = buildWine(type: 'Rosé');
 
     await tester.pumpWidget(

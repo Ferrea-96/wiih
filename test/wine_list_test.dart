@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wiih/classes/change_notifier.dart';
-import 'package:wiih/classes/wine/wine.dart';
+import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
+import 'package:wiih/src/features/cellar/domain/models/wine.dart';
 
 Wine buildWine({
   required int id,

@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wiih/classes/animated_wine_bottle.dart';
+import 'package:wiih/src/shared/widgets/animated_wine_bottle.dart';
 
 void main() {
- testWidgets('AnimatedWineBottleIcon displays wine bottle icon',
-    (WidgetTester tester) async {
-  // Build the widget
-  await tester.pumpWidget(MaterialApp(home: AnimatedWineBottleIcon()));
+  testWidgets('AnimatedWineBottleIcon displays wine bottle icon',
+      (WidgetTester tester) async {
+    // Build the widget
+    await tester.pumpWidget(MaterialApp(home: AnimatedWineBottleIcon()));
 
-  // Check that the wine bottle icon is present
-  expect(find.byIcon(Icons.wine_bar), findsOneWidget);
+    // Check that the wine bottle icon is present
+    expect(find.byIcon(Icons.wine_bar), findsOneWidget);
 
-  // Verify that the icon is within a Center widget in the AnimatedWineBottleIcon
-  final centerWidget = find.ancestor(
-    of: find.byIcon(Icons.wine_bar),
-    matching: find.byType(Center),
-  );
-  expect(centerWidget, findsOneWidget);
-});
-
+    // Verify that the icon is within a Center widget in the AnimatedWineBottleIcon
+    final centerWidget = find.ancestor(
+      of: find.byIcon(Icons.wine_bar),
+      matching: find.byType(Center),
+    );
+    expect(centerWidget, findsOneWidget);
+  });
 
   testWidgets('AnimatedWineBottleIcon animates wine bottle icon continuously',
       (WidgetTester tester) async {
