@@ -20,6 +20,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static const double _railBreakpoint = 900;
+  static const double _extendedRailBreakpoint = 1100;
+
   late Future<void> _initialLoad;
   int _selectedIndex = 0;
 
@@ -45,87 +48,137 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _handleDestinationSelected(int index) {
+    if (_selectedIndex == index) {
+      return;
+    }
+    setState(() => _selectedIndex = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final useRail = constraints.maxWidth >= _railBreakpoint;
+        final extendRail = constraints.maxWidth >= _extendedRailBreakpoint;
+
         return FutureBuilder<void>(
           future: _initialLoad,
           builder: (context, snapshot) {
             final isLoading = snapshot.connectionState != ConnectionState.done;
             final hasError = snapshot.hasError;
-            return Scaffold(
-              backgroundColor: const Color(0xFFFDEEEF),
-              body: Row(
-                children: [
-                  Container(
-                    width: constraints.maxWidth >= 600 ? 272 : 72,
-                    color: const Color(0xFFFDEEEF),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: NavigationRail(
-                            extended: constraints.maxWidth >= 600,
-                            destinations: const [
-                              NavigationRailDestination(
-                                icon: Icon(Icons.home),
-                                label: Text('Home'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.wine_bar),
-                                label: Text('Cellar'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.travel_explore),
-                                label: Text('Countries'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.notes),
-                                label: Text('Notes'),
-                              ),
-                            ],
-                            selectedIndex: _selectedIndex,
-                            onDestinationSelected: (index) {
-                              setState(() => _selectedIndex = index);
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 25),
-                          child: IconButton(
-                            icon: const Icon(Icons.logout),
-                            onPressed: AuthService.signOut,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: GradientBackground(
-                      child: Container(
-                        color: Colors.transparent,
-                        child: () {
-                          if (isLoading) {
-                            return const Center(
-                                child: AnimatedWineBottleIcon());
-                          }
-                          if (hasError) {
-                            return _LoadingError(
-                              message: snapshot.error?.toString(),
-                              onRetry: _retryInitialLoad,
-                            );
-                          }
-                          return _buildPageContent();
-                        }(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
+            final body = () {
+              if (isLoading) {
+                return const Center(child: AnimatedWineBottleIcon());
+              }
+              if (hasError) {
+                return _LoadingError(
+                  message: snapshot.error?.toString(),
+                  onRetry: _retryInitialLoad,
+                );
+              }
+              return _buildPageContent();
+            }();
+
+            return useRail
+                ? _buildWideScaffold(body, extendRail)
+                : _buildCompactScaffold(body);
           },
         );
       },
+    );
+  }
+
+  Widget _buildWideScaffold(Widget body, bool extended) {
+    final navigationWidth = extended ? 276.0 : 92.0;
+    final destinations = _navigationItems
+        .map(
+          (item) => NavigationRailDestination(
+            icon: Icon(item.icon),
+            label: Text(item.label),
+          ),
+        )
+        .toList(growable: false);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDEEEF),
+      body: Row(
+        children: [
+          Container(
+            width: navigationWidth,
+            color: const Color(0xFFFDEEEF),
+            child: Column(
+              children: [
+                Expanded(
+                  child: NavigationRail(
+                    extended: extended,
+                    selectedIndex: _selectedIndex,
+                    destinations: destinations,
+                    onDestinationSelected: _handleDestinationSelected,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: AuthService.signOut,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: GradientBackground(
+              child: SafeArea(
+                child: Container(
+                  color: Colors.transparent,
+                  child: body,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactScaffold(Widget body) {
+    final destinations = _navigationItems
+        .map(
+          (item) => NavigationDestination(
+            icon: Icon(item.icon),
+            label: item.label,
+          ),
+        )
+        .toList(growable: false);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDEEEF),
+      appBar: AppBar(
+        title: Text(_navigationItems[_selectedIndex].label),
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: AuthService.signOut,
+          ),
+        ],
+      ),
+      body: GradientBackground(
+        child: SafeArea(
+          child: body,
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _handleDestinationSelected,
+        destinations: destinations,
+        backgroundColor: Colors.white.withOpacity(0.8),
+        indicatorColor: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+      ),
     );
   }
 
@@ -187,3 +240,17 @@ class _LoadingError extends StatelessWidget {
     );
   }
 }
+
+class _NavigationItem {
+  const _NavigationItem({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+}
+
+const List<_NavigationItem> _navigationItems = <_NavigationItem>[
+  _NavigationItem(icon: Icons.home, label: 'Home'),
+  _NavigationItem(icon: Icons.wine_bar, label: 'Cellar'),
+  _NavigationItem(icon: Icons.travel_explore, label: 'Countries'),
+  _NavigationItem(icon: Icons.notes, label: 'Notes'),
+];
