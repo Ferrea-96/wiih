@@ -7,11 +7,10 @@ import 'package:wiih/pages/add_wine_notes_page.dart';
 import 'package:wiih/pages/edit_wine_notes_page.dart';
 
 class NotesPage extends StatefulWidget {
-  const NotesPage({Key? key}) : super(key: key);
+  const NotesPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _NotesPageState createState() => _NotesPageState();
+  State<NotesPage> createState() => _NotesPageState();
 }
 
 class _NotesPageState extends State<NotesPage> {

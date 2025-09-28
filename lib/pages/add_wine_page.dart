@@ -16,7 +16,7 @@ class AddWinePage extends StatefulWidget {
   const AddWinePage({super.key});
 
   @override
-  _AddWinePageState createState() => _AddWinePageState();
+  State<AddWinePage> createState() => _AddWinePageState();
 }
 
 class _AddWinePageState extends State<AddWinePage> {
@@ -296,17 +296,20 @@ class _AddWinePageState extends State<AddWinePage> {
       return;
     }
 
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return const AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedWineBottleIcon(),
-              const SizedBox(height: 16),
-              const Text('Saving wine...'),
+              SizedBox(height: 16),
+              Text('Saving wine...'),
             ],
           ),
         );
@@ -316,15 +319,18 @@ class _AddWinePageState extends State<AddWinePage> {
     String? imageUrl;
     try {
       imageUrl = _image != null ? await uploadImage(_image!) : null;
-    } catch (e) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
+    } catch (_) {
+      if (!mounted) return;
+      navigator.pop();
+      messenger.showSnackBar(
         const SnackBar(content: Text('Image upload failed')),
       );
       return;
     }
 
-    Wine newWine = Wine(
+    if (!mounted) return;
+
+    final newWine = Wine(
       id: DateTime.now().millisecondsSinceEpoch,
       name: nameController.text,
       type: selectedType,
@@ -337,12 +343,11 @@ class _AddWinePageState extends State<AddWinePage> {
       bottleCount: 1,
     );
 
-    Navigator.pop(context);
-    Navigator.pop(context, newWine);
-
-    ScaffoldMessenger.of(context).showSnackBar(
+    navigator.pop();
+    messenger.showSnackBar(
       const SnackBar(content: Text('Wine saved successfully')),
     );
+    navigator.pop(newWine);
   }
 
   bool _isSaveButtonEnabled() {

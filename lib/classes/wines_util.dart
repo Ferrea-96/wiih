@@ -55,7 +55,9 @@ class WinesUtil {
         'wineList',
         wineJsonList.map((e) => json.encode(e)).toList(),
       );
-    } catch (e) {}
+    } catch (e) {
+      // Unable to persist locally; let cloud sync handle current state
+    }
 
     // Firebase Firestore
     final user = FirebaseAuth.instance.currentUser;

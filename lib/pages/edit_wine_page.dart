@@ -20,7 +20,7 @@ class EditWinePage extends StatefulWidget {
   const EditWinePage({super.key, required this.wine});
 
   @override
-  _EditWinePageState createState() => _EditWinePageState();
+  State<EditWinePage> createState() => _EditWinePageState();
 }
 
 class _EditWinePageState extends State<EditWinePage> {
@@ -229,8 +229,6 @@ class _EditWinePageState extends State<EditWinePage> {
   }
 
   Padding _buildImageButtons() {
-    final bool hasExistingImage =
-        _image != null || (widget.wine.imageUrl?.isNotEmpty ?? false);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -329,16 +327,22 @@ class _EditWinePageState extends State<EditWinePage> {
       },
     );
 
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
     String? imageUrl;
     try {
       imageUrl = await _uploadImage();
     } catch (_) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!mounted) return;
+      navigator.pop();
+      messenger.showSnackBar(
         const SnackBar(content: Text('Image upload failed')),
       );
       return;
     }
+
+    if (!mounted) return;
 
     final updatedWine = Wine(
       id: widget.wine.id,
@@ -353,11 +357,12 @@ class _EditWinePageState extends State<EditWinePage> {
       imageUrl: imageUrl ?? widget.wine.imageUrl,
     );
 
-    Navigator.pop(context); // Close saving dialog
-    Navigator.pop(context, updatedWine); // Return wine to previous page
+    navigator.pop(); // Close saving dialog
+    navigator.pop(updatedWine); // Return wine to previous page
   }
 
   Future<void> _deleteWine() async {
+    final navigator = Navigator.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -373,7 +378,7 @@ class _EditWinePageState extends State<EditWinePage> {
         ],
       ),
     ).then((confirmed) {
-      if (confirmed == true) Navigator.pop(context, true);
+      if (confirmed == true && navigator.mounted) navigator.pop(true);
     });
   }
 

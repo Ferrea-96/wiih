@@ -4,53 +4,52 @@ import 'package:wiih/classes/wine/wine_countries.dart';
 class CountrySelectionDialog extends StatefulWidget {
   final String selectedCountry;
 
-  const CountrySelectionDialog({required this.selectedCountry});
+  const CountrySelectionDialog({super.key, required this.selectedCountry});
 
   @override
-  _CountrySelectionDialogState createState() =>
-      _CountrySelectionDialogState(selectedCountry: selectedCountry);
+  State<CountrySelectionDialog> createState() => _CountrySelectionDialogState();
 }
 
 class _CountrySelectionDialogState extends State<CountrySelectionDialog> {
-  String selectedCountry;
+  late String _selectedCountry;
 
-  _CountrySelectionDialogState({required this.selectedCountry});
+  @override
+  void initState() {
+    super.initState();
+    _selectedCountry = widget.selectedCountry;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  AlertDialog(
-        title: const Text('Select Country'),
-        content: SizedBox(
-          height: 400, // Constrain the height of the dialog
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: WineCountries.countries
-                  .map(
-                    (country) => RadioListTile(
-                      title: Text(country),
-                      value: country,
-                      groupValue: selectedCountry,
-                      onChanged: (String? value) {
-                        setState(() {
-                          selectedCountry = value!;
-                        });
-                      },
-                    ),
-                  )
-                  .toList(),
-            ),
+    return AlertDialog(
+      title: const Text('Select Country'),
+      content: SizedBox(
+        height: 400,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: WineCountries.countries
+                .map(
+                  (country) => RadioListTile<String>(
+                    title: Text(country),
+                    value: country,
+                    groupValue: _selectedCountry,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _selectedCountry = value);
+                    },
+                  ),
+                )
+                .toList(),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, selectedCountry);
-            },
-            child: const Text('Done'),
-          ),
-        ],
-      
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, _selectedCountry),
+          child: const Text('Done'),
+        ),
+      ],
     );
   }
 }

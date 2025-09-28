@@ -7,11 +7,10 @@ import 'package:wiih/classes/change_notifier.dart';
 import 'package:wiih/classes/wine/wine_notes.dart';
 
 class AddWineNotePage extends StatefulWidget {
-  const AddWineNotePage({Key? key}) : super(key: key);
+  const AddWineNotePage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _AddWineNotePageState createState() => _AddWineNotePageState();
+  State<AddWineNotePage> createState() => _AddWineNotePageState();
 }
 
 class _AddWineNotePageState extends State<AddWineNotePage> {

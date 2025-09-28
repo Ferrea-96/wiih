@@ -74,13 +74,16 @@ class LoginPage extends StatelessWidget {
                       shadowColor: Colors.black45,
                     ),
                     onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
                       try {
                         final user = await AuthService.signInWithGoogle();
+                        if (!context.mounted) return;
                         if (user != null) {
                           // Navigate handled by auth listener in main.dart
                         }
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        if (!context.mounted) return;
+                        messenger.showSnackBar(
                           const SnackBar(
                               content: Text('Login failed. Please try again.')),
                         );

@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
 class AnimatedWineBottleIcon extends StatefulWidget {
+  const AnimatedWineBottleIcon({super.key});
+
   @override
-  // ignore: library_private_types_in_public_api
-  _AnimatedWineBottleIconState createState() => _AnimatedWineBottleIconState();
+  State<AnimatedWineBottleIcon> createState() => _AnimatedWineBottleIconState();
 }
 
-class _AnimatedWineBottleIconState extends State<AnimatedWineBottleIcon> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _AnimatedWineBottleIconState extends State<AnimatedWineBottleIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2), // Adjust the duration as needed
-    )..repeat(); // Repeat the animation
+      duration: const Duration(seconds: 2),
+    )..repeat();
   }
 
   @override

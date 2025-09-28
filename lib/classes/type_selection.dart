@@ -4,38 +4,39 @@ import 'package:wiih/classes/wine/wine_options.dart';
 class TypeSelectionDialog extends StatefulWidget {
   final String selectedType;
 
-  const TypeSelectionDialog({required this.selectedType});
+  const TypeSelectionDialog({super.key, required this.selectedType});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _TypeSelectionDialogState createState() =>
-      _TypeSelectionDialogState(selectedType: selectedType);
+  State<TypeSelectionDialog> createState() => _TypeSelectionDialogState();
 }
 
 class _TypeSelectionDialogState extends State<TypeSelectionDialog> {
-  String selectedType;
+  late String _selectedType;
 
-  _TypeSelectionDialogState({required this.selectedType});
+  @override
+  void initState() {
+    super.initState();
+    _selectedType = widget.selectedType;
+  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Select Type'),
       content: SizedBox(
-        height: 260, // Constrain the height of the dialog
+        height: 260,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: WineOptions.types
                 .map(
-                  (type) => RadioListTile(
+                  (type) => RadioListTile<String>(
                     title: Text(type),
                     value: type,
-                    groupValue: selectedType,
-                    onChanged: (String? value) {
-                      setState(() {
-                        selectedType = value!;
-                      });
+                    groupValue: _selectedType,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _selectedType = value);
                     },
                   ),
                 )
@@ -45,9 +46,7 @@ class _TypeSelectionDialogState extends State<TypeSelectionDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.pop(context, selectedType);
-          },
+          onPressed: () => Navigator.pop(context, _selectedType),
           child: const Text('Done'),
         ),
       ],

@@ -5,10 +5,10 @@ import 'package:wiih/classes/wine/wine_notes.dart';
 class EditWineNotePage extends StatefulWidget {
   final WineNote wineNote;
 
-  const EditWineNotePage({Key? key, required this.wineNote}) : super(key: key);
+  const EditWineNotePage({super.key, required this.wineNote});
 
   @override
-  _EditWineNotePageState createState() => _EditWineNotePageState();
+  State<EditWineNotePage> createState() => _EditWineNotePageState();
 }
 
 class _EditWineNotePageState extends State<EditWineNotePage> {

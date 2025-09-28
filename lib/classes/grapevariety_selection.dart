@@ -4,25 +4,25 @@ class GrapeVarietySelectionDialog extends StatefulWidget {
   final List<String> grapeVarieties;
   final Set<String> selectedValues;
 
-  GrapeVarietySelectionDialog({
+  const GrapeVarietySelectionDialog({
+    super.key,
     required this.grapeVarieties,
     required this.selectedValues,
-    super.key
   });
 
   @override
-  GrapeVarietySelectionDialogState createState() =>
-      GrapeVarietySelectionDialogState();
+  State<GrapeVarietySelectionDialog> createState() =>
+      _GrapeVarietySelectionDialogState();
 }
 
-class GrapeVarietySelectionDialogState
+class _GrapeVarietySelectionDialogState
     extends State<GrapeVarietySelectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Select Grape Varieties'),
       content: SizedBox(
-        height: 400, // Constrain the height of the dialog
+        height: 400,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -33,12 +33,11 @@ class GrapeVarietySelectionDialogState
                     value: widget.selectedValues.contains(grape),
                     onChanged: (bool? value) {
                       setState(() {
-                        if (value != null) {
-                          if (value) {
-                            widget.selectedValues.add(grape);
-                          } else {
-                            widget.selectedValues.remove(grape);
-                          }
+                        if (value == null) return;
+                        if (value) {
+                          widget.selectedValues.add(grape);
+                        } else {
+                          widget.selectedValues.remove(grape);
                         }
                       });
                     },
@@ -50,9 +49,8 @@ class GrapeVarietySelectionDialogState
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.pop(context, widget.selectedValues.toList());
-          },
+          onPressed: () =>
+              Navigator.pop(context, widget.selectedValues.toList()),
           child: const Text('Done'),
         ),
       ],
