@@ -20,7 +20,7 @@ Wine buildWine({required String type}) {
 
 void main() {
   testWidgets('Rose wines use dedicated placeholder image', (tester) async {
-    final wine = buildWine(type: 'Rosé');
+    final wine = buildWine(type: 'RosÃ©');
 
     await tester.pumpWidget(
       MaterialApp(
