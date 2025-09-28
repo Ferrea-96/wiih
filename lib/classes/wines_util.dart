@@ -50,7 +50,7 @@ class WinesUtil {
     try {
       final prefs = await SharedPreferences.getInstance();
       final wineJsonList =
-          wineList.wines.map((wine) => wine.toJson()).toList();
+          wineList.allWines.map((wine) => wine.toJson()).toList();
       await prefs.setStringList(
         'wineList',
         wineJsonList.map((e) => json.encode(e)).toList(),
@@ -73,7 +73,7 @@ class WinesUtil {
         }
 
         // Save current list
-        for (var wine in wineList.wines) {
+        for (var wine in wineList.allWines) {
           await wineRef.add(wine.toJson());
         }
       } catch (e) {
@@ -102,3 +102,4 @@ class WinesUtil {
     }
   }
 }
+

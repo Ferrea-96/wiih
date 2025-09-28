@@ -10,6 +10,8 @@ class WineList with ChangeNotifier {
 
   List<Wine> get wines => _isFiltered ? _filteredWines : _wines;
 
+  List<Wine> get allWines => List.unmodifiable(_wines);
+
   void addWine(Wine wine) {
     _wines.add(wine);
     _refreshFilteredWines();
@@ -142,3 +144,4 @@ class NotesList with ChangeNotifier {
     notifyListeners();
   }
 }
+
