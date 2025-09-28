@@ -101,12 +101,12 @@ class _MyHomePageState extends State<MyHomePage> {
         .toList(growable: false);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDEEEF),
+      backgroundColor: const Color(0xFFFFF6FA),
       body: Row(
         children: [
           Container(
             width: navigationWidth,
-            color: const Color(0xFFFDEEEF),
+            color: const Color(0xFFFFF6FA),
             child: Column(
               children: [
                 Expanded(
@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .toList(growable: false);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDEEEF),
+      backgroundColor: const Color(0xFFFFF6FA),
       appBar: AppBar(
         title: Text(_navigationItems[_selectedIndex].label),
         centerTitle: false,

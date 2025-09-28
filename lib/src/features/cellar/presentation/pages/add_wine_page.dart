@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine.dart';
@@ -83,6 +83,8 @@ class _AddWinePageState extends State<AddWinePage> {
                           const SizedBox(height: 16),
                           _buildTypeSelection(),
                           _buildGrapeVarietySelection(),
+                          const SizedBox(height: 8),
+                          _buildSelectedGrapesPreview(Theme.of(context)),
                           _buildYearSelection(),
                           _buildPriceField(),
                           const SizedBox(height: 16),
@@ -225,6 +227,32 @@ class _AddWinePageState extends State<AddWinePage> {
     );
   }
 
+  Widget _buildSelectedGrapesPreview(ThemeData theme) {
+    if (selectedGrapeVarieties.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: selectedGrapeVarieties
+            .map(
+              (grape) => Chip(
+                label: Text(grape),
+                backgroundColor:
+                    theme.colorScheme.secondaryContainer.withOpacity(0.7),
+                labelStyle: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSecondaryContainer,
+                ),
+              ),
+            )
+            .toList(growable: false),
+      ),
+    );
+  }
+
   Widget _buildYearSelection() {
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -272,32 +300,77 @@ class _AddWinePageState extends State<AddWinePage> {
   }
 
   Widget _buildImageSelection() {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          ElevatedButton.icon(
-            onPressed: _captureImage,
-            icon: const Icon(Icons.camera_alt),
-            label: const Text('Capture'),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: _pickImage,
-            icon: const Icon(Icons.image),
-            label: const Text('Pick Image'),
-          ),
-          const SizedBox(width: 16),
-          if (_image != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                _image!,
-                width: 60,
-                height: 80,
-                fit: BoxFit.cover,
+    final theme = Theme.of(context);
+    Widget preview;
+    final buttonStyle = FilledButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    );
+
+    if (_image != null) {
+      preview = ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(
+          _image!,
+          width: 96,
+          height: 128,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else {
+      preview = Container(
+        width: 96,
+        height: 128,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image_outlined,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No image yet',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
               ),
             ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              FilledButton.tonalIcon(
+                style: buttonStyle,
+                onPressed: _captureImage,
+                icon: const Icon(Icons.camera_alt_outlined),
+                label: const Text('Capture photo'),
+              ),
+              FilledButton.tonalIcon(
+                style: buttonStyle,
+                onPressed: _pickImage,
+                icon: const Icon(Icons.photo_library_outlined),
+                label: const Text('Pick from gallery'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          preview,
         ],
       ),
     );
@@ -308,22 +381,15 @@ class _AddWinePageState extends State<AddWinePage> {
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [
-          ElevatedButton(
-            onPressed: _saveWine,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
-            child: const Text('Save'),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton(
+          TextButton(
             onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
             child: const Text('Cancel'),
+          ),
+          const Spacer(),
+          FilledButton.icon(
+            onPressed: _saveWine,
+            icon: const Icon(Icons.check_circle_outline),
+            label: const Text('Save wine'),
           ),
         ],
       ),
