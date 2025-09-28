@@ -31,6 +31,15 @@ class _AddWinePageState extends State<AddWinePage> {
   File? _image;
 
   @override
+  void dispose() {
+    nameController.dispose();
+    wineryController.dispose();
+    priceController.dispose();
+    yearController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (context, constraints) => GradientBackground(

@@ -52,6 +52,15 @@ class _EditWinePageState extends State<EditWinePage> {
   }
 
   @override
+  void dispose() {
+    nameController.dispose();
+    wineryController.dispose();
+    priceController.dispose();
+    yearController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
         builder: (context, constraints) => GradientBackground(

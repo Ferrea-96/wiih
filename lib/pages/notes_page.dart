@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
@@ -8,7 +9,6 @@ import 'package:wiih/pages/edit_wine_notes_page.dart';
 
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
-
   @override
   State<NotesPage> createState() => _NotesPageState();
 }
@@ -16,13 +16,14 @@ class NotesPage extends StatefulWidget {
 class _NotesPageState extends State<NotesPage> {
   late NotesList notesList;
   String selectedSortOption = 'None';
-
   @override
   void initState() {
     super.initState();
     // Initialize wineList in the initState method
     notesList = Provider.of<NotesList>(context, listen: false);
-    NotesUtil.loadNotes;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await NotesUtil.loadNotes(notesList);
+    });
   }
 
   @override
@@ -48,17 +49,16 @@ class _NotesPageState extends State<NotesPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(15,15,15,25),
+                padding: const EdgeInsets.fromLTRB(15, 15, 15, 25),
                 child: ElevatedButton(
                   onPressed: () {
-                    _navigateToAddNotePage(
-                        context);
+                    _navigateToAddNotePage(context);
                   },
                   child: const Text('Add'),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(15,15,15,25),
+                padding: const EdgeInsets.fromLTRB(15, 15, 15, 25),
                 child: ElevatedButton(
                   onPressed: () {
                     _showSortOptions(context);
@@ -87,9 +87,7 @@ class _NotesPageState extends State<NotesPage> {
         trailing: Container(
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .secondaryContainer,
+            color: Theme.of(context).colorScheme.secondaryContainer,
             borderRadius: BorderRadius.circular(8.0),
           ),
           child: Text(
@@ -104,7 +102,7 @@ class _NotesPageState extends State<NotesPage> {
     ));
   }
 
-  void _sortWineNotes() async {
+  Future<void> _sortWineNotes() async {
     switch (selectedSortOption) {
       case 'Name':
         notesList.sortWineNotesByName();
@@ -116,7 +114,7 @@ class _NotesPageState extends State<NotesPage> {
         notesList.sortWineNotesByRating();
         break;
     }
-    await NotesUtil.saveNotes(notesList);
+    await _persistNotes();
   }
 
   void _showSortOptions(BuildContext context) {
@@ -143,44 +141,50 @@ class _NotesPageState extends State<NotesPage> {
     return ListTile(
       title: Text(option),
       onTap: () {
+        Navigator.pop(context);
         setState(() {
           selectedSortOption = option;
-          _sortWineNotes();
         });
-        Navigator.pop(context);
+        unawaited(_sortWineNotes());
       },
     );
   }
 
-  void _navigateToAddNotePage(BuildContext context) async {
+  Future<void> _persistNotes() async {
+    try {
+      await NotesUtil.saveNotes(notesList);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save wine notes: $e')),
+      );
+    }
+  }
+
+  Future<void> _navigateToAddNotePage(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddWineNotePage()),
     );
-
     if (result != null && result is WineNote) {
       notesList.addWineNote(result);
-      try {
-        await NotesUtil.saveNotes(notesList);
-      } catch (e) {
-        throw ('Error saving wine notes: $e');
-      }
+      await _persistNotes();
     }
   }
 
-  void _navigateToEditNotePage(BuildContext context, WineNote wineNote) async {
+  Future<void> _navigateToEditNotePage(
+      BuildContext context, WineNote wineNote) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => EditWineNotePage(wineNote: wineNote)),
     );
-
     if (result != null && result is WineNote) {
       notesList.updateWineNote(result);
-      await NotesUtil.saveNotes(notesList);
+      await _persistNotes();
     } else if (result != null && result is bool && result) {
       notesList.deleteWineNote(wineNote.id);
-      await NotesUtil.saveNotes(notesList);
+      await _persistNotes();
     }
   }
 }

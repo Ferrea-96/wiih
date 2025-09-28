@@ -20,6 +20,14 @@ class _AddWineNotePageState extends State<AddWineNotePage> {
   int _rating = 50;
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _yearController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,

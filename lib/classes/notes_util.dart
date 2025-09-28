@@ -18,7 +18,7 @@ class NotesUtil {
         notesList.loadWineNotes(loadedNotes);
       }
     } catch (e) {
-      throw ('Error loading wine notes: $e');
+      throw Exception('Error loading wine notes: $e');
     }
   }
 
@@ -30,7 +30,7 @@ class NotesUtil {
       final String encodedJson = json.encode(notesJsonList);
       prefs.setString('notesList', encodedJson);
     } catch (e) {
-      throw ('Error saving wine notes: $e');
+      throw Exception('Error saving wine notes: $e');
     }
   }
 }
