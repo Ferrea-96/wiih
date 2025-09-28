@@ -69,99 +69,146 @@ class _CellarPageState extends State<CellarPage> {
     return Consumer<WineList>(
       builder: (context, list, child) {
         final wines = _applySearch(list.wines);
-        return Column(
-          children: [
-            _buildControls(theme),
-            Expanded(
-              child: wines.isEmpty
-                  ? _buildEmptyState(theme)
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      itemCount: wines.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        return _buildWineCard(context, wines[index]);
-                      },
-                    ),
+        return CustomScrollView(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _CellarToolbarDelegate(
+                height: 260,
+                child: _buildToolbar(theme),
+              ),
             ),
+            if (wines.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: _buildEmptyState(theme),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final wine = wines[index];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == wines.length - 1 ? 0 : 12,
+                        ),
+                        child: _buildWineCard(context, wine),
+                      );
+                    },
+                    childCount: wines.length,
+                  ),
+                ),
+              ),
           ],
         );
       },
     );
   }
 
-  Widget _buildControls(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _onSearchChanged,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchTerm.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              _searchController.clear();
-                              _onSearchChanged('');
-                            },
-                          ),
-                    labelText: 'Search your cellar',
-                    hintText: 'Name, winery, grape, country...',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              FilledButton.icon(
-                onPressed: () => _navigateToAddWinePage(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Add wine'),
+  Widget _buildToolbar(ThemeData theme) {
+    final surface = theme.colorScheme.surface.withOpacity(0.95);
+    final shadowColor = theme.colorScheme.primary.withOpacity(0.08);
+
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: surface,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: shadowColor,
+                blurRadius: 18,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          _buildFilterChips(),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerRight,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: theme.colorScheme.outlineVariant,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedSortOption,
-                    onChanged: _onSortChanged,
-                    items: _sortOptions
-                        .map(
-                          (option) => DropdownMenuItem<String>(
-                            value: option.value,
-                            child: Text(option.label),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: _onSearchChanged,
+                        textInputAction: TextInputAction.search,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search),
+                          suffixIcon: _searchTerm.isEmpty
+                              ? null
+                              : IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _onSearchChanged('');
+                                  },
+                                ),
+                          labelText: 'Search your cellar',
+                          hintText: 'Name, winery, grape, country...',
+                          filled: true,
+                          fillColor: theme.colorScheme.surface.withOpacity(0.6),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.outlineVariant,
+                            ),
                           ),
-                        )
-                        .toList(growable: false),
-                    icon: const Icon(Icons.keyboard_arrow_down),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    FilledButton.icon(
+                      onPressed: () => _navigateToAddWinePage(context),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add wine'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildFilterChips(),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: theme.colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selectedSortOption,
+                          icon: const Icon(Icons.keyboard_arrow_down),
+                          onChanged: _onSortChanged,
+                          items: _sortOptions
+                              .map(
+                                (option) => DropdownMenuItem<String>(
+                                  value: option.value,
+                                  child: Text(option.label),
+                                ),
+                              )
+                              .toList(growable: false),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -322,7 +369,7 @@ class _CellarPageState extends State<CellarPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${wine.winery} • ${wine.country}',
+                        '${wine.winery} Ã¢â‚¬Â¢ ${wine.country}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -562,6 +609,30 @@ class _CellarPageState extends State<CellarPage> {
       _wineList.addWine(result);
       await WineRepository.saveWines(_wineList);
     }
+  }
+}
+
+class _CellarToolbarDelegate extends SliverPersistentHeaderDelegate {
+  _CellarToolbarDelegate({required this.child, required this.height});
+
+  final Widget child;
+  final double height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(covariant _CellarToolbarDelegate oldDelegate) {
+    return oldDelegate.child != child || oldDelegate.height != height;
   }
 }
 
