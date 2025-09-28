@@ -47,7 +47,7 @@ class HomePage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Consumer<WineList>(
             builder: (context, wineList, child) {
-              int wineCount = calculateSumOfWines(wineList.wines);
+              int wineCount = calculateSumOfWines(wineList.allWines);
               return Row(
                 children: [
                   Text(
@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Consumer<WineList>(
             builder: (context, wineList, child) {
-              int priceCount = calculateSumOfPrices(wineList.wines);
+              int priceCount = calculateSumOfPrices(wineList.allWines);
               return Row(
                 children: [
                   Text(
@@ -159,3 +159,4 @@ class HomePage extends StatelessWidget {
     return sum;
   }
 }
+
