@@ -13,107 +13,124 @@ import 'package:wiih/src/shared/widgets/animated_wine_bottle.dart';
 import 'package:wiih/src/shared/widgets/gradient_background.dart';
 
 class MyHomePage extends StatefulWidget {
-  final bool isInitialLoading;
-
-  const MyHomePage({super.key, required this.isInitialLoading});
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int selectedIndex = 0;
-  late WineList wineList;
-  late NotesList notesList;
-  bool _isInitialLoading = true;
+  late Future<void> _initialLoad;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    wineList = Provider.of<WineList>(context, listen: false);
-    notesList = Provider.of<NotesList>(context, listen: false);
-    _loadInitialData();
+    _initialLoad = _loadInitialData();
   }
 
   Future<void> _loadInitialData() async {
-    if (widget.isInitialLoading) {
-      await Future.delayed(const Duration(seconds: 2));
-    }
-    await WineRepository.loadWines(wineList);
-    await NoteRepository.loadNotes(notesList);
-    if (!mounted) return;
+    final wineList = Provider.of<WineList>(context, listen: false);
+    final notesList = Provider.of<NotesList>(context, listen: false);
+
+    await Future.wait([
+      WineRepository.loadWines(wineList),
+      NoteRepository.loadNotes(notesList),
+    ]);
+  }
+
+  void _retryInitialLoad() {
     setState(() {
-      _isInitialLoading = false;
+      _initialLoad = _loadInitialData();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (context, constraints) => Scaffold(
-        backgroundColor: const Color(0xFFFDEEEF),
-        body: Row(
-          children: [
-            Container(
-              width: constraints.maxWidth >= 600 ? 272 : 72,
-              color: const Color(0xFFFDEEEF),
-              child: Column(
+      builder: (context, constraints) {
+        return FutureBuilder<void>(
+          future: _initialLoad,
+          builder: (context, snapshot) {
+            final isLoading = snapshot.connectionState != ConnectionState.done;
+            final hasError = snapshot.hasError;
+            return Scaffold(
+              backgroundColor: const Color(0xFFFDEEEF),
+              body: Row(
                 children: [
-                  Expanded(
-                    child: NavigationRail(
-                      extended: constraints.maxWidth >= 600,
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: Icon(Icons.home),
-                          label: Text('Home'),
+                  Container(
+                    width: constraints.maxWidth >= 600 ? 272 : 72,
+                    color: const Color(0xFFFDEEEF),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: NavigationRail(
+                            extended: constraints.maxWidth >= 600,
+                            destinations: const [
+                              NavigationRailDestination(
+                                icon: Icon(Icons.home),
+                                label: Text('Home'),
+                              ),
+                              NavigationRailDestination(
+                                icon: Icon(Icons.wine_bar),
+                                label: Text('Cellar'),
+                              ),
+                              NavigationRailDestination(
+                                icon: Icon(Icons.travel_explore),
+                                label: Text('Countries'),
+                              ),
+                              NavigationRailDestination(
+                                icon: Icon(Icons.notes),
+                                label: Text('Notes'),
+                              ),
+                            ],
+                            selectedIndex: _selectedIndex,
+                            onDestinationSelected: (index) {
+                              setState(() => _selectedIndex = index);
+                            },
+                          ),
                         ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.wine_bar),
-                          label: Text('Cellar'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.travel_explore),
-                          label: Text('Countries'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.notes),
-                          label: Text('Notes'),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 25),
+                          child: IconButton(
+                            icon: const Icon(Icons.logout),
+                            onPressed: AuthService.signOut,
+                          ),
                         ),
                       ],
-                      selectedIndex: selectedIndex,
-                      onDestinationSelected: (index) {
-                        setState(() => selectedIndex = index);
-                      },
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 25),
-                    child: IconButton(
-                      icon: const Icon(Icons.logout),
-                      onPressed: AuthService.signOut,
+                  Expanded(
+                    child: GradientBackground(
+                      child: Container(
+                        color: Colors.transparent,
+                        child: () {
+                          if (isLoading) {
+                            return const Center(
+                                child: AnimatedWineBottleIcon());
+                          }
+                          if (hasError) {
+                            return _LoadingError(
+                              message: snapshot.error?.toString(),
+                              onRetry: _retryInitialLoad,
+                            );
+                          }
+                          return _buildPageContent();
+                        }(),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            Expanded(
-              child: GradientBackground(
-                child: Container(
-                  color: Colors.transparent,
-                  child: _isInitialLoading
-                      ? const Center(child: AnimatedWineBottleIcon())
-                      : _buildPageContent(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildPageContent() {
-    switch (selectedIndex) {
+    switch (_selectedIndex) {
       case 0:
         return const HomePage();
       case 1:
@@ -125,5 +142,48 @@ class _MyHomePageState extends State<MyHomePage> {
       default:
         return const Center(child: Text('Unknown Page'));
     }
+  }
+}
+
+class _LoadingError extends StatelessWidget {
+  const _LoadingError({this.message, required this.onRetry});
+
+  final String? message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.wifi_off, size: 48, color: theme.colorScheme.primary),
+            const SizedBox(height: 16),
+            Text(
+              'We could not refresh your cellar.',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            if (message != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                message!,
+                style: theme.textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const Text('Try again'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
