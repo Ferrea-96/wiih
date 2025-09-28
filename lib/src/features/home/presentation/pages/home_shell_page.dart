@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/src/features/auth/data/auth_service.dart';
 import 'package:wiih/src/features/cellar/data/wine_repository.dart';
@@ -117,13 +117,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     onDestinationSelected: _handleDestinationSelected,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: IconButton(
-                    icon: const Icon(Icons.logout),
-                    onPressed: AuthService.signOut,
+                if (_selectedIndex == 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: IconButton(
+                      icon: const Icon(Icons.logout),
+                      onPressed: AuthService.signOut,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -160,12 +161,14 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: AuthService.signOut,
-          ),
-        ],
+        actions: _selectedIndex == 0
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: AuthService.signOut,
+                ),
+              ]
+            : null,
       ),
       body: GradientBackground(
         child: SafeArea(

@@ -19,6 +19,28 @@ class CellarPage extends StatefulWidget {
 class _CellarPageState extends State<CellarPage> {
   static const String _allFilterLabel = 'All';
 
+  static const Map<String, Color> _typeColors = {
+    'Red': Color(0xFFD32F2F),
+    'White': Color(0xFFA5A05B),
+    'Ros\u00E9': Color(0xFFE57373),
+    'Sparkling': Color(0xFF80CBC4),
+    'Orange': Color(0xFFF6A25C),
+    'PetNat': Color(0xFF9C27B0),
+  };
+
+  Color _colorForType(ThemeData theme, String type) {
+    return _typeColors[type] ?? theme.colorScheme.primary;
+  }
+
+  Color _onColor(Color base) {
+    return base.computeLuminance() > 0.5 ? Colors.black87 : Colors.white;
+  }
+
+  Color _tintFor(Color base, ThemeData theme, [double opacity = 0.16]) {
+    return Color.alphaBlend(
+        base.withOpacity(opacity), theme.colorScheme.surface);
+  }
+
   final TextEditingController _searchController = TextEditingController();
   late final WineList _wineList;
 
@@ -146,22 +168,40 @@ class _CellarPageState extends State<CellarPage> {
 
   Widget _buildFilterChips() {
     final filters = <String>[_allFilterLabel, ...WineOptions.types];
+    final theme = Theme.of(context);
+    final defaultLabelColor = theme.textTheme.bodyMedium?.color;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        children: filters
-            .map(
-              (type) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(type == _allFilterLabel ? 'All types' : type),
-                  selected: selectedFilterOption == type,
-                  onSelected: (_) => _updateFilter(type),
+        children: filters.map((type) {
+          final isSelected = selectedFilterOption == type;
+          final typeColor = type == _allFilterLabel
+              ? theme.colorScheme.primary
+              : _colorForType(theme, type);
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilterChip(
+              label: Text(
+                type == _allFilterLabel ? 'All types' : type,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: isSelected ? _onColor(typeColor) : defaultLabelColor,
+                  fontWeight: isSelected ? FontWeight.w600 : null,
                 ),
               ),
-            )
-            .toList(growable: false),
+              selected: isSelected,
+              onSelected: (_) => _updateFilter(type),
+              showCheckmark: isSelected,
+              checkmarkColor: _onColor(typeColor),
+              backgroundColor: _tintFor(typeColor, theme, 0.12),
+              selectedColor: _tintFor(typeColor, theme, 0.28),
+              side: BorderSide(
+                color:
+                    isSelected ? typeColor : theme.colorScheme.outlineVariant,
+              ),
+            ),
+          );
+        }).toList(growable: false),
       ),
     );
   }
@@ -203,6 +243,11 @@ class _CellarPageState extends State<CellarPage> {
   }
 
   Widget _buildWineCard(BuildContext context, Wine wine) {
+    final theme = Theme.of(context);
+    final typeColor = _colorForType(theme, wine.type);
+    final accentBackground = _tintFor(typeColor, theme, 0.18);
+    final bottleLabel = wine.bottleCount == 1 ? 'bottle' : 'bottles';
+
     return Dismissible(
       key: Key(wine.id.toString()),
       direction: DismissDirection.horizontal,
@@ -226,33 +271,104 @@ class _CellarPageState extends State<CellarPage> {
         return false;
       },
       child: Card(
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: typeColor.withOpacity(0.28)),
+        ),
         child: InkWell(
+          borderRadius: BorderRadius.circular(16),
           onTap: () => _navigateToEditWinePage(context, wine),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildWineImage(context, wine),
               Expanded(
-                child: ListTile(
-                  title: Text(
-                    '${wine.name} ${wine.year}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    '${wine.type} - ${wine.winery} - ${wine.country}\n${wine.price} CHF',
-                  ),
-                  trailing: Container(
-                    padding: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Text(
-                      '${wine.bottleCount}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${wine.name} ${wine.year}',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: accentBackground,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              wine.type,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: typeColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${wine.winery} • ${wine.country}',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      if (wine.grapeVariety.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          wine.grapeVariety,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(Icons.sell_outlined, size: 18, color: typeColor),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${wine.price} CHF',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: typeColor,
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: accentBackground,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              '${wine.bottleCount} $bottleLabel',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: typeColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
