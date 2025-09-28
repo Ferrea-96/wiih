@@ -2,32 +2,32 @@ class WineOptions {
   static const List<String> types = [
     'Red',
     'White',
-    'Rosé',
+    'Ros\u00E9',
     'Sparkling',
     'Orange',
     'PetNat',
   ];
 
-static final Map<String, List<String>> grapeVarietiesByType = {
-  'Red': grapeVarietiesRed,
-  'White': grapeVarietiesWhite,
-  'Rosé': grapeVarietiesRose,
-  'Sparkling': grapeVarietiesSparkling,
-  'Orange': grapeVarietiesOrange,
-  'PetNat': grapeVarietiesPetNat,
-};
+  static final Map<String, List<String>> grapeVarietiesByType = {
+    'Red': grapeVarietiesRed,
+    'White': grapeVarietiesWhite,
+    'Ros\u00E9': grapeVarietiesRose,
+    'Sparkling': grapeVarietiesSparkling,
+    'Orange': grapeVarietiesOrange,
+    'PetNat': grapeVarietiesPetNat,
+  };
 
   static List<String> grapeVarietiesRed = [
     'Aglianico',
     'Areni',
     'Barbera',
-    'Blaufränkisch',
+    'Blaufr\u00E4nkisch',
     'Brachetto',
     'Brunello',
     'Cabernet Franc',
     'Cabernet Sauvignon',
     'Carignan',
-    'Carménère',
+    'Carm\u00E9n\u00E8re',
     'Charbono',
     'Cinsaut',
     'Cornalin',
@@ -40,11 +40,11 @@ static final Map<String, List<String>> grapeVarietiesByType = {
     'Malbec',
     'Merlot',
     'Montepulciano',
-    'Mourverdre',
+    'Mourv\u00E8dre',
     'Monastrell',
     'Nebbiolo',
     'Negroamaro',
-    "Nero d'Avola",
+    'Nero d\'Avola',
     'Petit Verdot',
     'Pignolo',
     'Pinot Noir',
@@ -59,6 +59,7 @@ static final Map<String, List<String>> grapeVarietiesByType = {
     'Primitivo',
     'Zweigelt',
   ];
+
   static List<String> grapeVarietiesWhite = [
     'Arbois',
     'Arneis',
@@ -67,42 +68,44 @@ static final Map<String, List<String>> grapeVarietiesByType = {
     'Chenin Blanc',
     'Clairette',
     'Completer',
-    'Gewürztraminer',
-    'Grüner Veltliner',
+    'Gew\u00FCrztraminer',
+    'Gr\u00FCner Veltliner',
     'Marsanne',
-    'Müller-Thurgau',
+    'M\u00FCller-Thurgau',
     'Moscato',
     'Petite Arvine',
     'Petite Manseng',
     'Pinot Blanc',
     'Pinot Gris',
     'Prosecco',
-    'Rauschling',
+    'R\u00E4uschling',
     'Riesling',
     'Roter Veltliner',
     'Roussanne',
     'Sauvignon Blanc',
     'Savagnin',
-    'Sémilion',
+    'S\u00E9millon',
     'Solaris',
     'Silvaner',
     'Trebbiano',
     'Verdejo',
     'Vermentino',
-    'Viognier'
+    'Viognier',
   ];
+
   static List<String> grapeVarietiesRose = [
     'Cinsaut',
     'Gamay',
     'Grenache',
     'Pinot Noir',
-    'Mourvèdre',
+    'Mourv\u00E8dre',
     'Syrah',
     'Susumaniello',
     'Tempranillo',
     'Negroamaro',
-    'Zweigelt'
+    'Zweigelt',
   ];
+
   static List<String> grapeVarietiesSparkling = [
     'Chardonnay',
     'Pinot Noir',
@@ -112,17 +115,19 @@ static final Map<String, List<String>> grapeVarietiesByType = {
     'Chenin Blanc',
     'Riesling',
     'Lambrusco',
-    'Clairette'
+    'Clairette',
   ];
+
   static List<String> grapeVarietiesOrange = [
     'Pinot Gris',
-    'Gewürztraminer',
+    'Gew\u00FCrztraminer',
     'Sauvignon Blanc',
     'Savagnin',
-    'Sémillon',
+    'S\u00E9millon',
     'Rkatsiteli',
-    'Viognier'
+    'Viognier',
   ];
+
   static List<String> grapeVarietiesPetNat = [
     'Chenin Blanc',
     'Gamay',
@@ -130,6 +135,6 @@ static final Map<String, List<String>> grapeVarietiesByType = {
     'Syrah',
     'Pinot Noir',
     'Grenache',
-    'Riesling'
+    'Riesling',
   ];
 }

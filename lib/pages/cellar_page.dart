@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+﻿// ignore_for_file: library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/classes/change_notifier.dart';
@@ -274,8 +274,8 @@ class _CellarPageState extends State<CellarPage> {
       case 'Orange':
         wineList.filterWinesByType('Orange');
         break;
-      case 'Rosé':
-        wineList.filterWinesByType('Rosé');
+      case 'Ros\\u00E9':
+        wineList.filterWinesByType('Ros\\u00E9');
         break;
       case 'Sparkling':
         wineList.filterWinesByType('Sparkling');
@@ -302,7 +302,7 @@ class _CellarPageState extends State<CellarPage> {
               _buildFilterOption('Red'),
               _buildFilterOption('White'),
               _buildFilterOption('Orange'),
-              _buildFilterOption('Rosé'),
+              _buildFilterOption('Ros\\u00E9'),
               _buildFilterOption('Sparkling'),
             ],
           ),
@@ -354,4 +354,5 @@ class _CellarPageState extends State<CellarPage> {
     }
   }
 }
+
 

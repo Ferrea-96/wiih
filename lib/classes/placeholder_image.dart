@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wiih/classes/wine/wine.dart';
 
 class PlaceholderImage extends StatelessWidget {
