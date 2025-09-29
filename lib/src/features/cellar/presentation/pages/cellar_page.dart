@@ -175,36 +175,7 @@ class _CellarPageState extends State<CellarPage> {
                 const SizedBox(height: 16),
                 _buildFilterChips(),
                 const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: theme.colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: selectedSortOption,
-                          icon: const Icon(Icons.keyboard_arrow_down),
-                          onChanged: _onSortChanged,
-                          items: _sortOptions
-                              .map(
-                                (option) => DropdownMenuItem<String>(
-                                  value: option.value,
-                                  child: Text(option.label),
-                                ),
-                              )
-                              .toList(growable: false),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                _buildSortChips(theme),
               ],
             ),
           ),
@@ -246,6 +217,37 @@ class _CellarPageState extends State<CellarPage> {
                 color:
                     isSelected ? typeColor : theme.colorScheme.outlineVariant,
               ),
+            ),
+          );
+        }).toList(growable: false),
+      ),
+    );
+  }
+
+  Widget _buildSortChips(ThemeData theme) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: _sortOptions.map((option) {
+          final isSelected = selectedSortOption == option.value;
+          final color = theme.colorScheme.primary;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Text(option.label),
+              selected: isSelected,
+              onSelected: (_) => _onSortChanged(option.value),
+              selectedColor: color.withOpacity(0.18),
+              backgroundColor: theme.colorScheme.surface.withOpacity(0.7),
+              labelStyle: theme.textTheme.bodyMedium?.copyWith(
+                color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.w600 : null,
+              ),
+              side: BorderSide(
+                color: isSelected ? color : theme.colorScheme.outlineVariant,
+              ),
+              showCheckmark: false,
             ),
           );
         }).toList(growable: false),
@@ -369,7 +371,7 @@ class _CellarPageState extends State<CellarPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${wine.winery} Ã¢â‚¬Â¢ ${wine.country}',
+                        '${wine.winery} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${wine.country}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
