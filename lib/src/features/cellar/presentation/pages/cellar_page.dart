@@ -370,11 +370,29 @@ class _CellarPageState extends State<CellarPage> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '${wine.winery} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ${wine.country}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                      Wrap(
+                        spacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            wine.winery,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          Icon(
+                            Icons.circle,
+                            size: 4,
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withOpacity(0.6),
+                          ),
+                          Text(
+                            wine.country,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                       if (wine.grapeVariety.isNotEmpty) ...[
                         const SizedBox(height: 4),
