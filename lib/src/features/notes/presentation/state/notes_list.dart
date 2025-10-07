@@ -30,18 +30,25 @@ class NotesList with ChangeNotifier {
     notifyListeners();
   }
 
-  void sortWineNotesByName() {
-    _wineNotes.sort((a, b) => a.name.compareTo(b.name));
+  void sortWineNotesByName({bool descending = false}) {
+    _wineNotes.sort((a, b) {
+      final aName = a.name.toLowerCase();
+      final bName = b.name.toLowerCase();
+      return descending ? bName.compareTo(aName) : aName.compareTo(bName);
+    });
     notifyListeners();
   }
 
-  void sortWineNotesByYear() {
-    _wineNotes.sort((a, b) => a.year.compareTo(b.year));
+  void sortWineNotesByYear({bool descending = false}) {
+    _wineNotes.sort((a, b) =>
+        descending ? b.year.compareTo(a.year) : a.year.compareTo(b.year));
     notifyListeners();
   }
 
-  void sortWineNotesByRating() {
-    _wineNotes.sort((a, b) => a.rating.compareTo(b.rating));
+  void sortWineNotesByRating({bool descending = false}) {
+    _wineNotes.sort((a, b) => descending
+        ? b.rating.compareTo(a.rating)
+        : a.rating.compareTo(b.rating));
     notifyListeners();
   }
 }

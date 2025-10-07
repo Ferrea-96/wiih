@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:wiih/src/features/notes/domain/models/wine_note.dart';
 
 class EditWineNotePage extends StatefulWidget {
-  final WineNote wineNote;
-
   const EditWineNotePage({super.key, required this.wineNote});
+
+  final WineNote wineNote;
 
   @override
   State<EditWineNotePage> createState() => _EditWineNotePageState();
 }
 
 class _EditWineNotePageState extends State<EditWineNotePage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  int _rating = 50;
+
+  int _rating = 90;
 
   @override
   void initState() {
@@ -36,166 +39,284 @@ class _EditWineNotePageState extends State<EditWineNotePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  textCapitalization: TextCapitalization.words,
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Wine Name',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        width: 1,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+      appBar: AppBar(
+        title: const Text('Edit tasting note'),
+        actions: [
+          IconButton(
+            tooltip: 'Delete note',
+            icon: const Icon(Icons.delete_outline),
+            onPressed: _confirmDelete,
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 640),
+                  child: Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 28,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Update tasting details',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Adjust the description or rating to keep your journal accurate.',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField(
+                              controller: _nameController,
+                              label: 'Wine name',
+                              capitalization: TextCapitalization.words,
+                              textInputAction: TextInputAction.next,
+                            ),
+                            _buildTextField(
+                              controller: _yearController,
+                              label: 'Vintage year',
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              textInputAction: TextInputAction.next,
+                              validator: _validateYear,
+                            ),
+                            _buildTextField(
+                              controller: _descriptionController,
+                              label: 'Tasting notes',
+                              keyboardType: TextInputType.multiline,
+                              textInputAction: TextInputAction.newline,
+                              minLines: 4,
+                              maxLines: 6,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildRatingPicker(theme),
+                            const SizedBox(height: 24),
+                            _buildActions(theme),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _yearController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Year',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        width: 1,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  textCapitalization: TextCapitalization.sentences,
-                  controller: _descriptionController,
-                  decoration: InputDecoration(
-                    labelText: 'Tasting Notes',
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        width: 1,
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ),
-                  maxLines: 6,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    const Text('Rating: '),
-                    NumberPicker(
-                      value: _rating,
-                      minValue: 50,
-                      maxValue: 100,
-                      axis: Axis.horizontal,
-                      selectedTextStyle: TextStyle(
-                        fontSize: 28,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _rating = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _saveNote();
-                    },
-                    child: const Text('Save'),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _deleteNote(context);
-                    },
-                    child: const Text('Delete'),
-                  ),
-                ],
-              ),
-            ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    TextCapitalization capitalization = TextCapitalization.none,
+    TextInputAction textInputAction = TextInputAction.done,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
+    int? minLines,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextFormField(
+        controller: controller,
+        textCapitalization: capitalization,
+        textInputAction: textInputAction,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        validator: validator ?? (value) => _validateRequired(value, label),
+        minLines: minLines,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
     );
   }
 
+  Widget _buildRatingPicker(ThemeData theme) {
+    final accent = theme.colorScheme.primary;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Rating',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: NumberPicker(
+                    value: _rating,
+                    minValue: 50,
+                    maxValue: 100,
+                    axis: Axis.horizontal,
+                    itemWidth: 44,
+                    itemHeight: 44,
+                    step: 1,
+                    textStyle: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    selectedTextStyle: theme.textTheme.headlineSmall?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onChanged: (value) => setState(() => _rating = value),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$_rating pts',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: accent,
+                      ),
+                    ),
+                    Text(
+                      'Scale 50 - 100',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActions(ThemeData theme) {
+    return Row(
+      children: [
+        FilledButton.icon(
+          onPressed: _saveNote,
+          icon: const Icon(Icons.check),
+          label: const Text('Save changes'),
+        ),
+        const SizedBox(width: 12),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+      ],
+    );
+  }
+
   void _saveNote() {
-    if (_nameController.text.isEmpty ||
-        _yearController.text.isEmpty ||
-        _descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
-      );
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) {
       return;
     }
 
-    final int yearValue = int.tryParse(_yearController.text) ?? 0;
-    if (yearValue < 1900 || yearValue > DateTime.now().year) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid year')),
-      );
-      return;
-    }
-
+    final year = int.parse(_yearController.text.trim());
     final editedNote = WineNote(
       id: widget.wineNote.id,
-      name: _nameController.text,
-      year: yearValue,
-      description: _descriptionController.text,
+      name: _nameController.text.trim(),
+      year: year,
+      description: _descriptionController.text.trim(),
       rating: _rating,
     );
 
+    FocusScope.of(context).unfocus();
     Navigator.pop(context, editedNote);
   }
 
-  void _deleteNote(BuildContext context) {
-    showDialog(
+  Future<void> _confirmDelete() async {
+    final shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Note'),
-        content: const Text('Are you sure you want to delete this wine note?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close the dialog
-            },
-            child: const Text('Cancel'),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete note'),
+          content: const Text(
+            'This tasting note will be removed from your journal. Delete it?',
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // Close the dialog
-              Navigator.pop(context, true); // Pass true to indicate deletion
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (shouldDelete == true) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  String? _validateRequired(String? value, String fieldLabel) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter ${fieldLabel.toLowerCase()}.';
+    }
+    return null;
+  }
+
+  String? _validateYear(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
+      return 'Please enter a vintage year.';
+    }
+    final parsed = int.tryParse(trimmed);
+    final currentYear = DateTime.now().year;
+    if (parsed == null || parsed < 1900 || parsed > currentYear) {
+      return 'Enter a year between 1900 and $currentYear.';
+    }
+    return null;
   }
 }
