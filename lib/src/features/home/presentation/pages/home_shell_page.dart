@@ -188,7 +188,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildPageContent() {
     switch (_selectedIndex) {
       case 0:
-        return const HomePage();
+        return HomePage(
+          onCellarTap: () => _handleDestinationSelected(1),
+          onNotesTap: () => _handleDestinationSelected(3),
+        );
       case 1:
         return const CellarPage();
       case 2:

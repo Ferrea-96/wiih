@@ -5,7 +5,10 @@ import 'package:wiih/src/features/cellar/domain/models/wine.dart';
 import 'package:wiih/src/features/notes/presentation/state/notes_list.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onCellarTap, this.onNotesTap});
+
+  final VoidCallback? onCellarTap;
+  final VoidCallback? onNotesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,32 +44,40 @@ class HomePage extends StatelessWidget {
   }
 
   Widget cellarStatistics() {
+    final borderRadius = BorderRadius.circular(12);
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Consumer<WineList>(
-            builder: (context, wineList, child) {
-              int wineCount = calculateSumOfWines(wineList.allWines);
-              return Row(
-                children: [
-                  Text(
-                    '$wineCount',
-                    style: const TextStyle(
-                        fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  const Expanded(
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onCellarTap,
+          borderRadius: borderRadius,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Consumer<WineList>(
+              builder: (context, wineList, child) {
+                int wineCount = calculateSumOfWines(wineList.allWines);
+                return Row(
+                  children: [
+                    Text(
+                      '$wineCount',
+                      style: const TextStyle(
+                          fontSize: 48, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    const Expanded(
                       child: Text(
-                    'wines in your cellar',
-                    style: TextStyle(fontSize: 24),
-                  )),
-                ],
-              );
-            },
+                        'wines in your cellar',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -107,33 +118,40 @@ class HomePage extends StatelessWidget {
   }
 
   Widget notesStatistics() {
+    final borderRadius = BorderRadius.circular(12);
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Consumer<NotesList>(
-            builder: (context, notesList, child) {
-              int notesCount = notesList.wineNotes.length;
-              return Row(
-                children: [
-                  Text(
-                    '$notesCount',
-                    style: const TextStyle(
-                        fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'notes in your inventory',
-                      style: TextStyle(fontSize: 24),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onNotesTap,
+          borderRadius: borderRadius,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Consumer<NotesList>(
+              builder: (context, notesList, child) {
+                int notesCount = notesList.wineNotes.length;
+                return Row(
+                  children: [
+                    Text(
+                      '$notesCount',
+                      style: const TextStyle(
+                          fontSize: 48, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
-              );
-            },
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'notes in your inventory',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
