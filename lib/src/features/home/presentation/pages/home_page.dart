@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wiih/src/features/auth/data/auth_service.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, this.onCellarTap});
+  const HomePage({super.key, this.onCellarTap, this.onCountriesTap});
 
   final VoidCallback? onCellarTap;
+  final VoidCallback? onCountriesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class HomePage extends StatelessWidget {
             welcomeText(),
             cellarStatistics(),
             priceStatistics(),
+            countryStatistics(),
           ],
         ),
       ),
@@ -30,17 +33,77 @@ class HomePage extends StatelessWidget {
   }
 
   Widget welcomeText() {
-    return const Padding(
-      padding: EdgeInsets.all(20.0),
+    final displayName = _resolveDisplayName();
+    final greeting =
+        displayName == null ? 'Hi there!' : 'Hi there, $displayName!';
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
       child: Text(
-        'Hi there!',
-        style: TextStyle(
+        greeting,
+        style: const TextStyle(
             fontSize: 25, letterSpacing: 3, fontWeight: FontWeight.bold),
       ),
     );
   }
 
   Widget cellarStatistics() {
+    return Consumer<WineList>(
+      builder: (context, wineList, child) {
+        final wineCount = calculateSumOfWines(wineList.allWines);
+        return _statisticCard(
+          value: '$wineCount',
+          label: 'wines in your cellar',
+          onTap: onCellarTap,
+        );
+      },
+    );
+  }
+
+  Widget priceStatistics() {
+    return Consumer<WineList>(
+      builder: (context, wineList, child) {
+        final priceCount = calculateSumOfPrices(wineList.allWines);
+        return _statisticCard(
+          value: '$priceCount',
+          label: 'CHF of value',
+        );
+      },
+    );
+  }
+
+  Widget labelStatistics() {
+    return Consumer<WineList>(
+      builder: (context, wineList, child) {
+        final labelCount = wineList.allWines.length;
+        return _statisticCard(
+          value: '$labelCount',
+          label: 'labels tracked',
+        );
+      },
+    );
+  }
+
+  Widget countryStatistics() {
+    return Consumer<WineList>(
+      builder: (context, wineList, child) {
+        final countries = wineList.allWines
+            .map((wine) => wine.country.trim())
+            .where((country) => country.isNotEmpty)
+            .toSet();
+        return _statisticCard(
+          value: '${countries.length}',
+          label: 'countries represented',
+          onTap: onCountriesTap,
+        );
+      },
+    );
+  }
+
+  Widget _statisticCard({
+    required String value,
+    required String label,
+    VoidCallback? onTap,
+  }) {
     final borderRadius = BorderRadius.circular(12);
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -48,32 +111,27 @@ class HomePage extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: borderRadius),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: onCellarTap,
+          onTap: onTap,
           borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: Consumer<WineList>(
-              builder: (context, wineList, child) {
-                int wineCount = calculateSumOfWines(wineList.allWines);
-                return Row(
-                  children: [
-                    Text(
-                      '$wineCount',
-                      style: const TextStyle(
-                          fontSize: 48, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'wines in your cellar',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  ],
-                );
-              },
+            child: Row(
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                      fontSize: 48, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -81,37 +139,19 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget priceStatistics() {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Consumer<WineList>(
-            builder: (context, wineList, child) {
-              int priceCount = calculateSumOfPrices(wineList.allWines);
-              return Row(
-                children: [
-                  Text(
-                    '$priceCount',
-                    style: const TextStyle(
-                        fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  const Expanded(
-                      child: Text(
-                    'CHF of value',
-                    style: TextStyle(fontSize: 24),
-                  )),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
+  String? _resolveDisplayName() {
+    final user = AuthService.currentUser;
+    final name = user?.displayName?.trim();
+    if (name != null && name.isNotEmpty) {
+      return name.split(' ').first;
+    }
+
+    final email = user?.email?.trim();
+    if (email != null && email.isNotEmpty) {
+      return email.split('@').first;
+    }
+
+    return null;
   }
 
   int calculateSumOfPrices(List<Wine> wines) {

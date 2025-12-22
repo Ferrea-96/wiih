@@ -169,6 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         return HomePage(
           onCellarTap: () => _handleDestinationSelected(1),
+          onCountriesTap: () => _handleDestinationSelected(2),
         );
       case 1:
         return const CellarPage();
@@ -233,7 +234,7 @@ class _NavigationItem {
 }
 
 const List<_NavigationItem> _navigationItems = <_NavigationItem>[
-  _NavigationItem(icon: Icons.home, label: 'Home'),
+  _NavigationItem(icon: Icons.home, label: 'Dashboard'),
   _NavigationItem(icon: Icons.wine_bar, label: 'Cellar'),
   _NavigationItem(icon: Icons.travel_explore, label: 'Countries'),
   _NavigationItem(icon: Icons.more_horiz, label: 'More'),
