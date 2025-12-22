@@ -410,26 +410,14 @@ class _EditWinePageState extends State<EditWinePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              FilledButton.tonalIcon(
-                style: buttonStyle,
-                onPressed: _captureImage,
-                icon: const Icon(Icons.camera_alt_outlined),
-                label: const Text('Capture photo'),
-              ),
-              FilledButton.tonalIcon(
-                style: buttonStyle,
-                onPressed: _pickImage,
-                icon: const Icon(Icons.photo_library_outlined),
-                label: const Text('Pick from gallery'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           preview,
+          const SizedBox(height: 12),
+          FilledButton.tonalIcon(
+            style: buttonStyle,
+            onPressed: _pickImage,
+            icon: const Icon(Icons.photo_library_outlined),
+            label: Text(_image == null ? 'Add image' : 'Change image'),
+          ),
         ],
       ),
     );
@@ -510,13 +498,6 @@ class _EditWinePageState extends State<EditWinePage> {
     final pickedImage = await pickImage();
     if (pickedImage != null) {
       setState(() => _image = pickedImage);
-    }
-  }
-
-  Future<void> _captureImage() async {
-    final capturedImage = await captureImage();
-    if (capturedImage != null) {
-      setState(() => _image = capturedImage);
     }
   }
 
