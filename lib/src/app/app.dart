@@ -32,15 +32,34 @@ class WiihApp extends StatelessWidget {
             onSurface: Colors.black,
           ),
           scaffoldBackgroundColor: Colors.transparent,
-          textTheme: GoogleFonts.playfairDisplayTextTheme().apply(
-            bodyColor: Colors.black87,
-            displayColor: Colors.black87,
-          ),
+          textTheme: _buildTextTheme(),
         ),
         home: const AuthenticatedApp(),
       ),
     );
   }
+}
+
+TextTheme _buildTextTheme() {
+  final bodyTheme = GoogleFonts.montserratTextTheme();
+  final headerTheme = GoogleFonts.loraTextTheme();
+
+  return bodyTheme
+      .copyWith(
+        displayLarge: headerTheme.displayLarge,
+        displayMedium: headerTheme.displayMedium,
+        displaySmall: headerTheme.displaySmall,
+        headlineLarge: headerTheme.headlineLarge,
+        headlineMedium: headerTheme.headlineMedium,
+        headlineSmall: headerTheme.headlineSmall,
+        titleLarge: headerTheme.titleLarge,
+        titleMedium: headerTheme.titleMedium,
+        titleSmall: headerTheme.titleSmall,
+      )
+      .apply(
+        bodyColor: Colors.black87,
+        displayColor: Colors.black87,
+      );
 }
 
 class AuthenticatedApp extends StatelessWidget {
