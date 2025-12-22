@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wiih/src/features/auth/data/auth_service.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({super.key});
@@ -40,6 +41,17 @@ class MorePage extends StatelessWidget {
               title: const Text('Help & feedback'),
               subtitle: const Text('Get in touch with the team'),
               onTap: () => _showComingSoon(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _sectionTitle('Account'),
+        _card(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Log out'),
+              onTap: AuthService.signOut,
             ),
           ],
         ),
