@@ -6,9 +6,7 @@ import 'package:wiih/src/features/cellar/presentation/pages/cellar_page.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
 import 'package:wiih/src/features/countries/presentation/pages/country_page.dart';
 import 'package:wiih/src/features/home/presentation/pages/home_page.dart';
-import 'package:wiih/src/features/notes/data/note_repository.dart';
-import 'package:wiih/src/features/notes/presentation/pages/notes_page.dart';
-import 'package:wiih/src/features/notes/presentation/state/notes_list.dart';
+import 'package:wiih/src/features/more/presentation/pages/more_page.dart';
 import 'package:wiih/src/shared/widgets/animated_wine_bottle.dart';
 import 'package:wiih/src/shared/widgets/gradient_background.dart';
 
@@ -34,11 +32,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _loadInitialData() async {
     final wineList = Provider.of<WineList>(context, listen: false);
-    final notesList = Provider.of<NotesList>(context, listen: false);
 
     await Future.wait([
       WineRepository.loadWines(wineList),
-      NoteRepository.loadNotes(notesList),
     ]);
   }
 
@@ -190,14 +186,13 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         return HomePage(
           onCellarTap: () => _handleDestinationSelected(1),
-          onNotesTap: () => _handleDestinationSelected(3),
         );
       case 1:
         return const CellarPage();
       case 2:
         return const CountryPage();
       case 3:
-        return const NotesPage();
+        return const MorePage();
       default:
         return const Center(child: Text('Unknown Page'));
     }
@@ -258,5 +253,5 @@ const List<_NavigationItem> _navigationItems = <_NavigationItem>[
   _NavigationItem(icon: Icons.home, label: 'Home'),
   _NavigationItem(icon: Icons.wine_bar, label: 'Cellar'),
   _NavigationItem(icon: Icons.travel_explore, label: 'Countries'),
-  _NavigationItem(icon: Icons.notes, label: 'Notes'),
+  _NavigationItem(icon: Icons.more_horiz, label: 'More'),
 ];

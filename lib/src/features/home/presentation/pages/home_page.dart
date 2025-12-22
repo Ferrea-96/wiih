@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine.dart';
-import 'package:wiih/src/features/notes/presentation/state/notes_list.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, this.onCellarTap, this.onNotesTap});
+  const HomePage({super.key, this.onCellarTap});
 
   final VoidCallback? onCellarTap;
-  final VoidCallback? onNotesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +23,6 @@ class HomePage extends StatelessWidget {
             welcomeText(),
             cellarStatistics(),
             priceStatistics(),
-            notesStatistics(),
           ],
         ),
       ),
@@ -111,47 +108,6 @@ class HomePage extends StatelessWidget {
                 ],
               );
             },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget notesStatistics() {
-    final borderRadius = BorderRadius.circular(12);
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: borderRadius),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onNotesTap,
-          borderRadius: borderRadius,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Consumer<NotesList>(
-              builder: (context, notesList, child) {
-                int notesCount = notesList.wineNotes.length;
-                return Row(
-                  children: [
-                    Text(
-                      '$notesCount',
-                      style: const TextStyle(
-                          fontSize: 48, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'notes in your inventory',
-                        style: TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
           ),
         ),
       ),

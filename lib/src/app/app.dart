@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:wiih/src/features/auth/presentation/pages/login_page.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
 import 'package:wiih/src/features/home/presentation/pages/home_shell_page.dart';
-import 'package:wiih/src/features/notes/presentation/state/notes_list.dart';
 
 class WiihApp extends StatelessWidget {
   const WiihApp({super.key});
@@ -15,7 +14,6 @@ class WiihApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => WineList()),
-        ChangeNotifierProvider(create: (_) => NotesList()),
       ],
       child: MaterialApp(
         title: 'WIIH',

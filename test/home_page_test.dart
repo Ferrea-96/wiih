@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
-import 'package:wiih/src/features/notes/presentation/state/notes_list.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine.dart';
 import 'package:wiih/src/features/home/presentation/pages/home_page.dart';
 
@@ -30,7 +29,6 @@ void main() {
   testWidgets('HomePage statistics show totals regardless of active filter',
       (tester) async {
     final wineList = WineList();
-    final notesList = NotesList();
 
     wineList.addWine(createWine(id: 1, type: 'Red', bottleCount: 2, price: 10));
     wineList
@@ -42,7 +40,6 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<WineList>.value(value: wineList),
-          ChangeNotifierProvider<NotesList>.value(value: notesList),
         ],
         child: const MaterialApp(home: HomePage()),
       ),
