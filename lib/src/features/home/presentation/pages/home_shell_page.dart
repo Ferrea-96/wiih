@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/src/features/cellar/data/wine_repository.dart';
+import 'package:wiih/src/features/cellar/presentation/pages/add_wine_page.dart';
 import 'package:wiih/src/features/cellar/presentation/pages/cellar_page.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
 import 'package:wiih/src/features/countries/presentation/pages/country_page.dart';
@@ -19,6 +20,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const double _railBreakpoint = 900;
   static const double _extendedRailBreakpoint = 1100;
+  static const double _bottomNavHeight = 80;
+  static const double _bottomNavBarHeight = 64;
+  static const double _bottomNavOverlap = 16;
+  static const double _bottomNavButtonSize = 70;
+  static const double _bottomNavSidePadding = 10;
+  static const double _bottomNavBottomPadding = 2;
 
   late Future<void> _initialLoad;
   int _selectedIndex = 0;
@@ -48,6 +55,14 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     setState(() => _selectedIndex = index);
+  }
+
+  void _handleAddWine() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AddWinePage(),
+      ),
+    );
   }
 
   @override
@@ -131,15 +146,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildCompactScaffold(Widget body) {
-    final destinations = _navigationItems
-        .map(
-          (item) => NavigationDestination(
-            icon: Icon(item.icon),
-            label: item.label,
-          ),
-        )
-        .toList(growable: false);
-
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6FA),
       appBar: AppBar(
@@ -154,32 +160,34 @@ class _MyHomePageState extends State<MyHomePage> {
           child: body,
         ),
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: _FloatingBottomBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: _handleDestinationSelected,
-        destinations: destinations,
-        backgroundColor: Colors.white.withOpacity(0.8),
-        indicatorColor: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+        items: _navigationItems,
+        onItemSelected: _handleDestinationSelected,
+        onAddTap: _handleAddWine,
+        barHeight: _bottomNavBarHeight,
+        buttonSize: _bottomNavButtonSize,
+        overlap: _bottomNavOverlap,
+        sidePadding: _bottomNavSidePadding,
+        bottomPadding: _bottomNavBottomPadding,
+        height: _bottomNavHeight,
       ),
     );
   }
 
   Widget _buildPageContent() {
-    switch (_selectedIndex) {
-      case 0:
-        return HomePage(
+    return IndexedStack(
+      index: _selectedIndex,
+      children: [
+        HomePage(
           onCellarTap: () => _handleDestinationSelected(1),
           onCountriesTap: () => _handleDestinationSelected(2),
-        );
-      case 1:
-        return const CellarPage();
-      case 2:
-        return const CountryPage();
-      case 3:
-        return const MorePage();
-      default:
-        return const Center(child: Text('Unknown Page'));
-    }
+        ),
+        const CellarPage(),
+        const CountryPage(),
+        const MorePage(),
+      ],
+    );
   }
 }
 
@@ -239,3 +247,236 @@ const List<_NavigationItem> _navigationItems = <_NavigationItem>[
   _NavigationItem(icon: Icons.travel_explore, label: 'Countries'),
   _NavigationItem(icon: Icons.more_horiz, label: 'More'),
 ];
+
+class _FloatingBottomBar extends StatelessWidget {
+  const _FloatingBottomBar({
+    required this.selectedIndex,
+    required this.items,
+    required this.onItemSelected,
+    required this.onAddTap,
+    required this.height,
+    required this.barHeight,
+    required this.buttonSize,
+    required this.overlap,
+    required this.sidePadding,
+    required this.bottomPadding,
+  });
+
+  final int selectedIndex;
+  final List<_NavigationItem> items;
+  final ValueChanged<int> onItemSelected;
+  final VoidCallback onAddTap;
+  final double height;
+  final double barHeight;
+  final double buttonSize;
+  final double overlap;
+  final double sidePadding;
+  final double bottomPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    final barBottomOffset = bottomInset + bottomPadding;
+    final buttonBottomOffset =
+        barBottomOffset + barHeight + overlap - buttonSize;
+
+    return SafeArea(
+      top: false,
+      child: SizedBox(
+        height: height + bottomInset,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: sidePadding,
+                  right: sidePadding,
+                  bottom: barBottomOffset,
+                ),
+                child: _BottomBarSurface(
+                  height: barHeight,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _BottomNavItem(
+                          item: items[0],
+                          selected: selectedIndex == 0,
+                          onTap: () => onItemSelected(0),
+                        ),
+                      ),
+                      Expanded(
+                        child: _BottomNavItem(
+                          item: items[1],
+                          selected: selectedIndex == 1,
+                          onTap: () => onItemSelected(1),
+                        ),
+                      ),
+                      SizedBox(width: buttonSize),
+                      Expanded(
+                        child: _BottomNavItem(
+                          item: items[2],
+                          selected: selectedIndex == 2,
+                          onTap: () => onItemSelected(2),
+                        ),
+                      ),
+                      Expanded(
+                        child: _BottomNavItem(
+                          item: items[3],
+                          selected: selectedIndex == 3,
+                          onTap: () => onItemSelected(3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: buttonBottomOffset),
+                child: _CenterAddButton(
+                  diameter: buttonSize,
+                  color: theme.colorScheme.primary,
+                  onTap: onAddTap,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomBarSurface extends StatelessWidget {
+  const _BottomBarSurface({required this.height, required this.child});
+
+  final double height;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface.withOpacity(0.98),
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        height: height,
+        child: child,
+      ),
+    );
+  }
+}
+
+class _BottomNavItem extends StatelessWidget {
+  const _BottomNavItem({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final _NavigationItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = selected
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
+
+    return InkResponse(
+      onTap: onTap,
+      radius: 28,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              item.icon,
+              color: color,
+            ),
+            const SizedBox(height: 2),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 180),
+              style: theme.textTheme.labelSmall!.copyWith(
+                color: color,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              ),
+              child: Text(item.label),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CenterAddButton extends StatefulWidget {
+  const _CenterAddButton({
+    required this.diameter,
+    required this.color,
+    required this.onTap,
+  });
+
+  final double diameter;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  State<_CenterAddButton> createState() => _CenterAddButtonState();
+}
+
+class _CenterAddButtonState extends State<_CenterAddButton> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed == value) {
+      return;
+    }
+    setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTapDown: (_) => _setPressed(true),
+      onTapCancel: () => _setPressed(false),
+      onTapUp: (_) => _setPressed(false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1,
+        duration: const Duration(milliseconds: 140),
+        child: Container(
+          width: widget.diameter,
+          height: widget.diameter,
+          decoration: BoxDecoration(
+            color: widget.color,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.16),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.add,
+            size: widget.diameter * 0.45,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+}
