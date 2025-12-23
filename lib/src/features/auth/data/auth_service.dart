@@ -1,8 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static FirebaseAuth get _auth {
+    if (Firebase.apps.isEmpty) {
+      throw StateError('Firebase has not been initialized.');
+    }
+    return FirebaseAuth.instance;
+  }
   static final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   static Future<User?> signInWithGoogle() async {
@@ -23,8 +29,16 @@ class AuthService {
 
   static Future<void> signOut() async {
     await _googleSignIn.signOut();
+    if (Firebase.apps.isEmpty) {
+      return;
+    }
     await _auth.signOut();
   }
 
-  static User? get currentUser => _auth.currentUser;
+  static User? get currentUser {
+    if (Firebase.apps.isEmpty) {
+      return null;
+    }
+    return _auth.currentUser;
+  }
 }
