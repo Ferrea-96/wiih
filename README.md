@@ -1,16 +1,14 @@
-# wiih
+# WIIH
 
-A flutter application for your wine cellar management.
+WIIH is a Flutter app for managing your wine cellar.
 
-## 🍷 Features
-- Cellar dashboard with prices and sum of wines
-- Add, edit, and delete wines manually
-- Save detailed wine data: Name, Type (e.g., Red, White, Rosé…), Winery, Country, Grape variety, Vintage, Price, Bottle count, Image (camera or gallery)
-- Separate WineNote feature to store personal notes: Wine name, Vintage, Description, Rating (via NumberPicker, 50–100 scale)
-- Seperate country feature to choose wine by country
+## Features
+- Dashboard with cellar stats and totals
+- Add, edit, and delete wines
+- Track wine details: name, type, winery, country, grape, vintage, price, bottles, image
+- Country view to browse wines by origin
 
-### 🌱 Possible Goals
-- Track and manage your physical wine collection
-- Attach tasting notes to wines
+## Possible goals
+- Keep an inventory of your physical collection
 - Use as a wine journal and cellar database
-- Possibly expand with filtering, exporting, cloud sync, or barcode scanning in future
+- Expand later with filtering, export, sync, or barcode scan
