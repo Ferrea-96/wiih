@@ -22,31 +22,34 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            welcomeText(),
-            cellarStatistics(),
-            priceStatistics(),
-            countryStatistics(),
+            welcomeText(context),
+            cellarStatistics(context),
+            priceStatistics(context),
+            countryStatistics(context),
           ],
         ),
       ),
     );
   }
 
-  Widget welcomeText() {
+  Widget welcomeText(BuildContext context) {
     final displayName = _resolveDisplayName();
     final greeting =
         displayName == null ? 'Hi there!' : 'Hi there, $displayName!';
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Text(
         greeting,
-        style: const TextStyle(
-            fontSize: 25, letterSpacing: 3, fontWeight: FontWeight.bold),
+        style: theme.textTheme.headlineSmall?.copyWith(
+          letterSpacing: 2,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
-  Widget cellarStatistics() {
+  Widget cellarStatistics(BuildContext context) {
     return Consumer<WineList>(
       builder: (context, wineList, child) {
         final wineCount = calculateSumOfWines(wineList.allWines);
@@ -54,36 +57,39 @@ class HomePage extends StatelessWidget {
           value: '$wineCount',
           label: 'wines in your cellar',
           onTap: onCellarTap,
+          context: context,
         );
       },
     );
   }
 
-  Widget priceStatistics() {
+  Widget priceStatistics(BuildContext context) {
     return Consumer<WineList>(
       builder: (context, wineList, child) {
         final priceCount = calculateSumOfPrices(wineList.allWines);
         return _statisticCard(
           value: '$priceCount',
           label: 'CHF of value',
+          context: context,
         );
       },
     );
   }
 
-  Widget labelStatistics() {
+  Widget labelStatistics(BuildContext context) {
     return Consumer<WineList>(
       builder: (context, wineList, child) {
         final labelCount = wineList.allWines.length;
         return _statisticCard(
           value: '$labelCount',
           label: 'labels tracked',
+          context: context,
         );
       },
     );
   }
 
-  Widget countryStatistics() {
+  Widget countryStatistics(BuildContext context) {
     return Consumer<WineList>(
       builder: (context, wineList, child) {
         final countries = wineList.allWines
@@ -94,6 +100,7 @@ class HomePage extends StatelessWidget {
           value: '${countries.length}',
           label: 'countries represented',
           onTap: onCountriesTap,
+          context: context,
         );
       },
     );
@@ -103,8 +110,10 @@ class HomePage extends StatelessWidget {
     required String value,
     required String label,
     VoidCallback? onTap,
+    required BuildContext context,
   }) {
     final borderRadius = BorderRadius.circular(12);
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Card(
@@ -119,8 +128,9 @@ class HomePage extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
-                      fontSize: 48, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(
                   width: 20,
@@ -128,7 +138,9 @@ class HomePage extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(fontSize: 24),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],

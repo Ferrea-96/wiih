@@ -149,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6FA),
       appBar: AppBar(
-        title: Text(_navigationItems[_selectedIndex].label),
+        title: const Text('WIIH'),
         centerTitle: false,
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
