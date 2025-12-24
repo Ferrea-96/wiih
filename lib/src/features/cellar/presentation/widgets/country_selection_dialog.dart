@@ -26,21 +26,23 @@ class _CountrySelectionDialogState extends State<CountrySelectionDialog> {
       content: SizedBox(
         height: 400,
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: WineCountries.countries
-                .map(
-                  (country) => RadioListTile<String>(
-                    title: Text(country),
-                    value: country,
-                    groupValue: _selectedCountry,
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() => _selectedCountry = value);
-                    },
-                  ),
-                )
-                .toList(),
+          child: RadioGroup<String>(
+            groupValue: _selectedCountry,
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() => _selectedCountry = value);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: WineCountries.countries
+                  .map(
+                    (country) => RadioListTile<String>(
+                      title: Text(country),
+                      value: country,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
       ),

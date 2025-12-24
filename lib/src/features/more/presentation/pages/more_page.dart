@@ -99,7 +99,7 @@ class MorePage extends StatelessWidget {
   Widget _card({required List<Widget> children}) {
     return Card(
       elevation: 0,
-      color: Colors.white.withOpacity(0.9),
+      color: Colors.white.withValues(alpha: 0.9),
       child: Column(children: children),
     );
   }
@@ -132,6 +132,7 @@ class MorePage extends StatelessWidget {
     final csv = _buildCsv(wines);
     if (kIsWeb) {
       await Clipboard.setData(ClipboardData(text: csv));
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('CSV copied for ${wines.length} wines.')),
       );
@@ -139,16 +140,19 @@ class MorePage extends StatelessWidget {
     }
 
     final file = await _writeCsvFile(csv);
+    if (!context.mounted) return;
     try {
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'WIIH cellar export',
       );
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('CSV ready to share for ${wines.length} wines.')),
       );
     } on MissingPluginException {
       await Clipboard.setData(ClipboardData(text: csv));
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

@@ -242,7 +242,7 @@ class _AddWinePageState extends State<AddWinePage> {
               (grape) => Chip(
                 label: Text(grape),
                 backgroundColor:
-                    theme.colorScheme.secondaryContainer.withOpacity(0.7),
+                    theme.colorScheme.secondaryContainer.withValues(alpha: 0.7),
                 labelStyle: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSecondaryContainer,
                 ),
@@ -323,7 +323,7 @@ class _AddWinePageState extends State<AddWinePage> {
         height: 128,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           border: Border.all(color: theme.colorScheme.outlineVariant),
         ),
         alignment: Alignment.center,
@@ -332,13 +332,13 @@ class _AddWinePageState extends State<AddWinePage> {
           children: [
             Icon(
               Icons.image_outlined,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 8),
             Text(
               'No image yet',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
             ),
           ],

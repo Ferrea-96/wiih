@@ -11,14 +11,15 @@ Future<Widget> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  final androidProvider =
-      kReleaseMode ? AndroidProvider.playIntegrity : AndroidProvider.debug;
-  final appleProvider =
-      kReleaseMode ? AppleProvider.deviceCheck : AppleProvider.debug;
+  final AndroidAppCheckProvider providerAndroid = kReleaseMode
+      ? const AndroidPlayIntegrityProvider()
+      : const AndroidDebugProvider();
+  final AppleAppCheckProvider providerApple =
+      kReleaseMode ? const AppleDeviceCheckProvider() : const AppleDebugProvider();
 
   await FirebaseAppCheck.instance.activate(
-    androidProvider: androidProvider,
-    appleProvider: appleProvider,
+    providerAndroid: providerAndroid,
+    providerApple: providerApple,
   );
 
   if (!kReleaseMode) {

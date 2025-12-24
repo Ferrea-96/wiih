@@ -362,9 +362,9 @@ class _BottomBarSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
-      color: theme.colorScheme.surface.withOpacity(0.98),
+      color: theme.colorScheme.surface.withValues(alpha: 0.98),
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.08),
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         height: height,
@@ -464,7 +464,7 @@ class _CenterAddButtonState extends State<_CenterAddButton> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.16),
+                color: Colors.black.withValues(alpha: 0.16),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
