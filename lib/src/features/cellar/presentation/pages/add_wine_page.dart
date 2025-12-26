@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine_options.dart';
 import 'package:wiih/src/features/cellar/presentation/widgets/country_selection_dialog.dart';
 import 'package:wiih/src/features/cellar/presentation/widgets/grape_variety_selection_dialog.dart';
 import 'package:wiih/src/features/cellar/presentation/widgets/type_selection_dialog.dart';
 import 'package:wiih/src/features/cellar/presentation/widgets/year_picker.dart';
+import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
 import 'package:wiih/src/features/countries/domain/models/wine_countries.dart';
 import 'package:wiih/src/shared/services/image_helper.dart';
 import 'package:wiih/src/shared/widgets/animated_wine_bottle.dart';
@@ -26,6 +28,7 @@ class _AddWinePageState extends State<AddWinePage> {
   final TextEditingController wineryController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController yearController = TextEditingController();
+  final FocusNode _wineryFocusNode = FocusNode();
 
   String selectedType = WineOptions.types.first;
   String selectedCountry = WineCountries.countries.first;
@@ -38,11 +41,16 @@ class _AddWinePageState extends State<AddWinePage> {
     wineryController.dispose();
     priceController.dispose();
     yearController.dispose();
+    _wineryFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final wineries = context.select<WineList, List<String>>(
+      (list) => _uniqueWineries(list.allWines.map((wine) => wine.winery)),
+    );
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return GradientBackground(
@@ -74,11 +82,7 @@ class _AddWinePageState extends State<AddWinePage> {
                             controller: nameController,
                             capitalization: TextCapitalization.words,
                           ),
-                          _buildTextField(
-                            label: 'Winery',
-                            controller: wineryController,
-                            capitalization: TextCapitalization.words,
-                          ),
+                          _buildWineryField(wineries),
                           _buildCountrySelection(),
                           const SizedBox(height: 16),
                           _buildTypeSelection(),
@@ -117,6 +121,74 @@ class _AddWinePageState extends State<AddWinePage> {
         textInputAction: TextInputAction.next,
         decoration: _inputDecoration(label),
         validator: (value) => _validateRequired(value, label),
+      ),
+    );
+  }
+
+  Widget _buildWineryField(List<String> wineries) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: RawAutocomplete<String>(
+        textEditingController: wineryController,
+        focusNode: _wineryFocusNode,
+        optionsBuilder: (TextEditingValue textEditingValue) {
+          final query = textEditingValue.text.trim().toLowerCase();
+          if (query.isEmpty) {
+            return wineries;
+          }
+          return wineries.where(
+            (winery) => winery.toLowerCase().contains(query),
+          );
+        },
+        displayStringForOption: (option) => option,
+        fieldViewBuilder: (
+          context,
+          textEditingController,
+          focusNode,
+          onFieldSubmitted,
+        ) {
+          return TextFormField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
+            decoration: _inputDecoration('Winery'),
+            validator: (value) => _validateRequired(value, 'Winery'),
+          );
+        },
+        optionsViewBuilder: (context, onSelected, options) {
+          if (options.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          final theme = Theme.of(context);
+          return Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              elevation: 4,
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 240, maxWidth: 360),
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    color: theme.colorScheme.outlineVariant,
+                  ),
+                  itemBuilder: (context, index) {
+                    final option = options.elementAt(index);
+                    return ListTile(
+                      title: Text(option),
+                      onTap: () => onSelected(option),
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -540,5 +612,22 @@ class _AddWinePageState extends State<AddWinePage> {
       return 'Price cannot be negative';
     }
     return null;
+  }
+
+  List<String> _uniqueWineries(Iterable<String> wineries) {
+    final unique = <String>[];
+    final seen = <String>{};
+    for (final winery in wineries) {
+      final trimmed = winery.trim();
+      if (trimmed.isEmpty) {
+        continue;
+      }
+      final key = trimmed.toLowerCase();
+      if (seen.add(key)) {
+        unique.add(trimmed);
+      }
+    }
+    unique.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return unique;
   }
 }

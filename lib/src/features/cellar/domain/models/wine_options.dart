@@ -34,6 +34,7 @@ class WineOptions {
     'Dolcetto',
     'Gamay',
     'Gamaret',
+    'Garnacha / Grenache',
     'Graciano',
     'Grignolino',
     'Lambrusco',
