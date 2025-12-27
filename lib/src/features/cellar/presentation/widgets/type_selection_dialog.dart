@@ -26,21 +26,23 @@ class _TypeSelectionDialogState extends State<TypeSelectionDialog> {
       content: SizedBox(
         height: 260,
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: WineOptions.types
-                .map(
-                  (type) => RadioListTile<String>(
-                    title: Text(type),
-                    value: type,
-                    groupValue: _selectedType,
-                    onChanged: (value) {
-                      if (value == null) return;
-                      setState(() => _selectedType = value);
-                    },
-                  ),
-                )
-                .toList(),
+          child: RadioGroup<String>(
+            groupValue: _selectedType,
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() => _selectedType = value);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: WineOptions.types
+                  .map(
+                    (type) => RadioListTile<String>(
+                      title: Text(type),
+                      value: type,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
       ),

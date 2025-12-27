@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wiih/src/features/auth/data/auth_service.dart';
 import 'package:wiih/src/features/cellar/domain/models/wine.dart';
+import 'package:wiih/src/features/cellar/data/wine_repository.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
+import 'package:wiih/src/features/more/presentation/services/csv_utils.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({super.key});
@@ -54,8 +58,8 @@ class MorePage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.upload_outlined),
               title: const Text('Import cellar from CSV'),
-              subtitle: const Text('Coming soon'),
-              onTap: () => _showComingSoon(context),
+              subtitle: const Text('Add wines from a CSV file'),
+              onTap: () => _importCsv(context),
             ),
           ],
         ),
@@ -99,7 +103,7 @@ class MorePage extends StatelessWidget {
   Widget _card({required List<Widget> children}) {
     return Card(
       elevation: 0,
-      color: Colors.white.withOpacity(0.9),
+      color: Colors.white.withValues(alpha: 0.9),
       child: Column(children: children),
     );
   }
@@ -129,9 +133,10 @@ class MorePage extends StatelessWidget {
       return;
     }
 
-    final csv = _buildCsv(wines);
+    final csv = buildCsv(wines);
     if (kIsWeb) {
       await Clipboard.setData(ClipboardData(text: csv));
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('CSV copied for ${wines.length} wines.')),
       );
@@ -139,16 +144,19 @@ class MorePage extends StatelessWidget {
     }
 
     final file = await _writeCsvFile(csv);
+    if (!context.mounted) return;
     try {
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'WIIH cellar export',
       );
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('CSV ready to share for ${wines.length} wines.')),
       );
     } on MissingPluginException {
       await Clipboard.setData(ClipboardData(text: csv));
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -159,11 +167,145 @@ class MorePage extends StatelessWidget {
     }
   }
 
-  Future<File> _writeCsvFile(String csv) async {
+  Future<void> _importCsv(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final selected = result.files.single;
+    final bytes = selected.bytes ??
+        (selected.path != null ? await File(selected.path!).readAsBytes() : null);
+    if (bytes == null) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Unable to read the CSV file.')),
+      );
+      return;
+    }
+
+    var csvText = utf8.decode(bytes);
+    if (csvText.isNotEmpty && csvText.codeUnitAt(0) == 0xFEFF) {
+      csvText = csvText.substring(1);
+    }
+    final rows = parseCsvRows(csvText);
+    if (rows.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('CSV file is empty.')),
+      );
+      return;
+    }
+
+    final dataRows = stripHeader(rows);
+    if (dataRows.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('CSV file has no data rows.')),
+      );
+      return;
+    }
+
+    final progress = ValueNotifier<_ImportProgress>(
+      _ImportProgress(total: dataRows.length),
+    );
+    final navigator = Navigator.of(context);
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return ValueListenableBuilder<_ImportProgress>(
+          valueListenable: progress,
+          builder: (context, value, _) {
+            return AlertDialog(
+              title: const Text('Importing wines'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Imported ${value.imported} of ${value.total} entries',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${value.failed} failed',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    final wineList = Provider.of<WineList>(context, listen: false);
+    final existingIds = wineList.allWines.map((wine) => wine.id).toSet();
+    var nextId = existingIds.isEmpty ? 1 : existingIds.reduce(maxInt) + 1;
+    final imported = <Wine>[];
+    final failedRows = <List<String>>[];
+    final failedReasons = <String>[];
+
+    for (final row in dataRows) {
+      final parsed = parseWineRow(row, existingIds, nextId);
+      if (parsed.wine == null) {
+        failedRows.add(row);
+        failedReasons.add(parsed.error ?? 'Invalid row');
+        progress.value = progress.value.copyWith(
+          processed: progress.value.processed + 1,
+          failed: progress.value.failed + 1,
+        );
+        continue;
+      }
+      existingIds.add(parsed.wine!.id);
+      nextId = parsed.wine!.id >= nextId ? parsed.wine!.id + 1 : nextId;
+      imported.add(parsed.wine!);
+      progress.value = progress.value.copyWith(
+        processed: progress.value.processed + 1,
+        imported: progress.value.imported + 1,
+      );
+    }
+
+    if (imported.isNotEmpty) {
+      final updated = [...wineList.allWines, ...imported];
+      wineList.loadWines(updated);
+      await WineRepository.saveWines(wineList);
+    }
+
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+
+    if (failedRows.isNotEmpty) {
+      final failedCsv = buildFailedCsv(
+        failedRows: failedRows,
+        failedReasons: failedReasons,
+      );
+      await _shareFailedCsv(context, failedCsv, failedRows.length);
+    }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          'Imported ${imported.length} wines. '
+          '${failedRows.length} failed.',
+        ),
+      ),
+    );
+  }
+
+  Future<File> _writeCsvFile(String csv, {String suffix = ''}) async {
     final directory = await getTemporaryDirectory();
     final timestamp = _timestampForFilename(DateTime.now());
-    final file =
-        File('${directory.path}/wiih_cellar_$timestamp.csv');
+    final file = File(
+      '${directory.path}/wiih_cellar_${timestamp}${suffix.isEmpty ? '' : '_$suffix'}.csv',
+    );
     await file.writeAsString(csv);
     return file;
   }
@@ -177,38 +319,64 @@ class MorePage extends StatelessWidget {
     return '${dateTime.year}$month${day}_$hour$minute$second';
   }
 
-  String _buildCsv(List<Wine> wines) {
-    final buffer = StringBuffer();
-    buffer.writeln(
-      'id,name,type,winery,country,grapeVariety,year,price,bottleCount,imageUrl',
-    );
-
-    for (final wine in wines) {
-      buffer.writeln(
-        [
-          wine.id.toString(),
-          _escapeCsv(wine.name),
-          _escapeCsv(wine.type),
-          _escapeCsv(wine.winery),
-          _escapeCsv(wine.country),
-          _escapeCsv(wine.grapeVariety),
-          wine.year.toString(),
-          wine.price.toString(),
-          wine.bottleCount.toString(),
-          _escapeCsv(wine.imageUrl ?? ''),
-        ].join(','),
+  Future<void> _shareFailedCsv(
+    BuildContext context,
+    String csv,
+    int failedCount,
+  ) async {
+    if (kIsWeb) {
+      await Clipboard.setData(ClipboardData(text: csv));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed rows CSV copied ($failedCount).')),
       );
+      return;
     }
 
-    return buffer.toString();
+    final file = await _writeCsvFile(csv, suffix: 'error');
+    if (!context.mounted) return;
+    try {
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'WIIH import failures ($failedCount)',
+      );
+    } on MissingPluginException {
+      await Clipboard.setData(ClipboardData(text: csv));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed rows CSV copied ($failedCount).'),
+        ),
+      );
+    }
   }
 
-  String _escapeCsv(String value) {
-    final escaped = value.replaceAll('"', '""');
-    final needsQuotes = escaped.contains(',') ||
-        escaped.contains('\n') ||
-        escaped.contains('\r') ||
-        escaped.contains('"');
-    return needsQuotes ? '"$escaped"' : escaped;
+}
+
+class _ImportProgress {
+  const _ImportProgress({
+    required this.total,
+    this.processed = 0,
+    this.imported = 0,
+    this.failed = 0,
+  });
+
+  final int total;
+  final int processed;
+  final int imported;
+  final int failed;
+
+  _ImportProgress copyWith({
+    int? total,
+    int? processed,
+    int? imported,
+    int? failed,
+  }) {
+    return _ImportProgress(
+      total: total ?? this.total,
+      processed: processed ?? this.processed,
+      imported: imported ?? this.imported,
+      failed: failed ?? this.failed,
+    );
   }
 }

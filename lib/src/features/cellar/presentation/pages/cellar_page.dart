@@ -38,7 +38,7 @@ class _CellarPageState extends State<CellarPage> {
 
   Color _tintFor(Color base, ThemeData theme, [double opacity = 0.16]) {
     return Color.alphaBlend(
-        base.withOpacity(opacity), theme.colorScheme.surface);
+        base.withValues(alpha: opacity), theme.colorScheme.surface);
   }
 
   final TextEditingController _searchController = TextEditingController();
@@ -108,8 +108,8 @@ class _CellarPageState extends State<CellarPage> {
   }
 
   Widget _buildToolbar(ThemeData theme) {
-    final surface = theme.colorScheme.surface.withOpacity(0.95);
-    final shadowColor = theme.colorScheme.primary.withOpacity(0.08);
+    final surface = theme.colorScheme.surface.withValues(alpha: 0.95);
+    final shadowColor = theme.colorScheme.primary.withValues(alpha: 0.08);
 
     return SafeArea(
       bottom: false,
@@ -154,7 +154,7 @@ class _CellarPageState extends State<CellarPage> {
                           labelText: 'Search your cellar',
                           hintText: 'Name, winery, grape, country...',
                           filled: true,
-                          fillColor: theme.colorScheme.surface.withOpacity(0.6),
+                          fillColor: theme.colorScheme.surface.withValues(alpha: 0.6),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide(
@@ -238,8 +238,8 @@ class _CellarPageState extends State<CellarPage> {
               label: Text(option.label),
               selected: isSelected,
               onSelected: (_) => _onSortChanged(option.value),
-              selectedColor: color.withOpacity(0.18),
-              backgroundColor: theme.colorScheme.surface.withOpacity(0.7),
+              selectedColor: color.withValues(alpha: 0.18),
+              backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.7),
               labelStyle: theme.textTheme.bodyMedium?.copyWith(
                 color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.w600 : null,
@@ -324,7 +324,7 @@ class _CellarPageState extends State<CellarPage> {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: typeColor.withOpacity(0.28)),
+          side: BorderSide(color: typeColor.withValues(alpha: 0.28)),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
@@ -384,7 +384,7 @@ class _CellarPageState extends State<CellarPage> {
                             Icons.circle,
                             size: 4,
                             color: theme.colorScheme.onSurfaceVariant
-                                .withOpacity(0.6),
+                                .withValues(alpha: 0.6),
                           ),
                           Text(
                             wine.country,

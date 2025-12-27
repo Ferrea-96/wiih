@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wiih/src/features/cellar/data/wine_repository.dart';
+import 'package:wiih/src/features/cellar/domain/models/wine.dart';
 import 'package:wiih/src/features/cellar/presentation/pages/add_wine_page.dart';
 import 'package:wiih/src/features/cellar/presentation/pages/cellar_page.dart';
 import 'package:wiih/src/features/cellar/presentation/state/wine_list.dart';
@@ -57,12 +58,21 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() => _selectedIndex = index);
   }
 
-  void _handleAddWine() {
-    Navigator.of(context).push(
+  Future<void> _handleAddWine() async {
+    final navigator = Navigator.of(context);
+    final result = await navigator.push(
       MaterialPageRoute(
         builder: (context) => const AddWinePage(),
       ),
     );
+    if (!mounted) {
+      return;
+    }
+    if (result is Wine) {
+      final wineList = Provider.of<WineList>(context, listen: false);
+      wineList.addWine(result);
+      await WineRepository.saveWines(wineList);
+    }
   }
 
   @override
@@ -164,7 +174,9 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedIndex: _selectedIndex,
         items: _navigationItems,
         onItemSelected: _handleDestinationSelected,
-        onAddTap: _handleAddWine,
+        onAddTap: () {
+          _handleAddWine();
+        },
         barHeight: _bottomNavBarHeight,
         buttonSize: _bottomNavButtonSize,
         overlap: _bottomNavOverlap,
@@ -362,9 +374,9 @@ class _BottomBarSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
-      color: theme.colorScheme.surface.withOpacity(0.98),
+      color: theme.colorScheme.surface.withValues(alpha: 0.98),
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.08),
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         height: height,
@@ -464,7 +476,7 @@ class _CenterAddButtonState extends State<_CenterAddButton> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.16),
+                color: Colors.black.withValues(alpha: 0.16),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
